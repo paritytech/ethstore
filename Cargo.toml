@@ -1,0 +1,20 @@
+[package]
+name = "ethstore"
+version = "0.1.0"
+authors = ["debris <marek.kotewicz@gmail.com>"]
+build = "build.rs"
+
+[dependencies]
+ethkey = { git = "https://github.com/ethcore/ethkey" }
+serde = "0.7"
+serde_json = "0.7"
+serde_macros = { version = "0.7", optional = true }
+rustc-serialize = "0.3"
+
+[build-dependencies]
+serde_codegen = { version = "0.7", optional = true }
+syntex = "0.32.0"
+
+[features]
+default = ["serde_codegen"]
+nightly = ["serde_macros"]
