@@ -1,4 +1,3 @@
-use rustc_serialize::hex::ToHex;
 use ethkey::Address;
 use {SafeAccount, Error};
 

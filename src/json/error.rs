@@ -2,8 +2,14 @@ use std::fmt;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
+	UnsupportedCipher,
+	InvalidCipherparams,
+	UnsupportedKdf,
 	InvalidUUID,
 	UnsupportedVersion,
+	InvalidCiphertext,
+	InvalidH256,
+	InvalidPrf,
 }
 
 impl fmt::Display for Error {
@@ -11,6 +17,12 @@ impl fmt::Display for Error {
 		match *self {
 			Error::InvalidUUID => write!(f, "Invalid UUID"),
 			Error::UnsupportedVersion => write!(f, "Unsupported version"),
+			Error::UnsupportedKdf => write!(f, "Unsupported kdf"),
+			Error::InvalidCiphertext => write!(f, "Invalid ciphertext"),
+			Error::UnsupportedCipher => write!(f, "Unsupported cipher"),
+			Error::InvalidCipherparams => write!(f, "Invalid cipherparams"),
+			Error::InvalidH256 => write!(f, "Invalid hash"),
+			Error::InvalidPrf => write!(f, "Invalid prf"),
 		}
 	}
 }

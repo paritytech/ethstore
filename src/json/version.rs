@@ -11,7 +11,7 @@ impl Serialize for Version {
 	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
 	where S: Serializer {
 		match *self {
-			Version::V3 => serializer.serialize_str("3")
+			Version::V3 => serializer.serialize_u64(3)
 		}
 	}
 }
@@ -28,15 +28,11 @@ struct VersionVisitor;
 impl Visitor for VersionVisitor {
 	type Value = Version;
 
-	fn visit_str<E>(&mut self, value: &str) -> Result<Self::Value, E> where E: SerdeError {
+	fn visit_u64<E>(&mut self, value: u64) -> Result<Self::Value, E> where E: SerdeError {
 		match value {
-			"3" => Ok(Version::V3),
+			3 => Ok(Version::V3),
 			_ => Err(SerdeError::custom(Error::UnsupportedVersion))
 		}
-	}
-
-	fn visit_string<E>(&mut self, value: String) -> Result<Self::Value, E> where E: SerdeError {
-		self.visit_str(value.as_ref())
 	}
 }
 
