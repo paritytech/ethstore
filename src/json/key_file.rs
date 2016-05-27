@@ -1,58 +1,71 @@
-use super::{UUID, Version, Crypto};
+use std::io::Read;
+use serde_json;
+use super::{UUID, Version, Crypto, H160};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct KeyFile {
 	id: UUID,
 	version: Version,
 	crypto: Crypto,
+	address: H160,
+}
+
+impl KeyFile {
+	pub fn load<R>(reader: R) -> Result<Self, serde_json::Error> where R: Read {
+		serde_json::from_reader(reader)
+	}
 }
 
 #[cfg(test)]
 mod tests {
 	use std::str::FromStr;
 	use serde_json;
-	use json::{KeyFile, UUID, Version, Crypto, Cipher, Cipherparams, Aes128CtrParams, Kdf, Pbkdf2Params, KdfParams, Prf, H128, H256};
+	use json::{KeyFile, UUID, Version, Crypto, Cipher, Cipherparams, Aes128CtrParams, Kdf, ScryptParams, KdfParams, Prf, H128, H160, H256};
 
 	#[test]
 	fn basic_keyfile() {
 		let json = r#"
 		{
-			"crypto" : {
-				"cipher" : "aes-128-ctr",
-				"cipherparams" : {
-					"iv" : "6087dab2f9fdbbfaddc31a909735c1e6"
+			"address": "6edddfc6349aff20bc6467ccf276c5b52487f7a8",
+			"crypto": { 
+				"cipher": "aes-128-ctr",
+				"ciphertext": "7203da0676d141b138cd7f8e1a4365f59cc1aa6978dc5443f364ca943d7cb4bc",
+				"cipherparams": { 
+					"iv": "b5a7ec855ec9e2c405371356855fec83"
 				},
-				"ciphertext" : "5318b4d5bcd28de64ee5559e671353e16f075ecae9f99c7a79a38af5f869aa46",
-				"kdf" : "pbkdf2",
-				"kdfparams" : {
-					"c" : 262144,
-					"dklen" : 32,
-					"prf" : "hmac-sha256",
-					"salt" : "ae3cd4e7013836a3df6bd7241b12db061dbe2c6785853cce422d148a624ce0bd"
+				"kdf": "scrypt", 
+				"kdfparams": {
+					"dklen": 32,
+					"n": 262144,
+					"p": 1,
+					"r": 8,
+					"salt": "1e8642fdf1f87172492c1412fc62f8db75d796cdfa9c53c3f2b11e44a2a1b209"
 				},
-				"mac" : "517ead924a9d0dc3124507e3393d175ce3ff7c1e96529c6c555ce9e51205e9b2"
-			},
-			"id" : "3198bc9c-6672-5ab3-d995-4942343ae5b6",
-			"version" : 3
+				"mac": "46325c5d4e8c991ad2683d525c7854da387138b6ca45068985aa4959fa2b8c8f"
+			}, 
+			"id": "8777d9f6-7860-4b9b-88b7-0b57ee6b3a73",
+			"version": 3
 		}"#;
 
 		let expected = KeyFile {
-			id: UUID::from_str("3198bc9c-6672-5ab3-d995-4942343ae5b6").unwrap(),
+			id: UUID::from_str("8777d9f6-7860-4b9b-88b7-0b57ee6b3a73").unwrap(),
 			version: Version::V3,
+			address: H160::from_str("6edddfc6349aff20bc6467ccf276c5b52487f7a8").unwrap(),
 			crypto: Crypto {
 				cipher: Cipher::Aes128Ctr,
 				cipherparams: Cipherparams::Aes128Ctr(Aes128CtrParams {
-					iv: H128::from_str("6087dab2f9fdbbfaddc31a909735c1e6").unwrap(),
+					iv: H128::from_str("b5a7ec855ec9e2c405371356855fec83").unwrap(),
 				}),
-				ciphertext: H256::from_str("5318b4d5bcd28de64ee5559e671353e16f075ecae9f99c7a79a38af5f869aa46").unwrap(),
-				kdf: Kdf::Pbkdf2,
-				kdfparams: KdfParams::Pbkdf2(Pbkdf2Params {
-					c: 262144,
+				ciphertext: H256::from_str("7203da0676d141b138cd7f8e1a4365f59cc1aa6978dc5443f364ca943d7cb4bc").unwrap(),
+				kdf: Kdf::Scrypt,
+				kdfparams: KdfParams::Scrypt(ScryptParams {
+					n: 262144,
 					dklen: 32,
-					prf: Prf::HmacSha256,
-					salt: H256::from_str("ae3cd4e7013836a3df6bd7241b12db061dbe2c6785853cce422d148a624ce0bd").unwrap(),
+					p: 1,
+					r: 8,
+					salt: H256::from_str("1e8642fdf1f87172492c1412fc62f8db75d796cdfa9c53c3f2b11e44a2a1b209").unwrap(),
 				}),
-				mac: H256::from_str("517ead924a9d0dc3124507e3393d175ce3ff7c1e96529c6c555ce9e51205e9b2").unwrap(),
+				mac: H256::from_str("46325c5d4e8c991ad2683d525c7854da387138b6ca45068985aa4959fa2b8c8f").unwrap(),
 			},
 		};
 		

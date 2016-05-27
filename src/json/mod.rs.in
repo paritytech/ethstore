@@ -13,7 +13,7 @@ pub use self::cipher::Cipher;
 pub use self::cipherparams::{Cipherparams, Aes128CtrParams};
 pub use self::crypto::Crypto;
 pub use self::error::Error;
-pub use self::hash::{H128, H256};
+pub use self::hash::{H128, H160, H256};
 pub use self::id::UUID;
 pub use self::kdf::Kdf;
 pub use self::kdfparams::{Prf, Pbkdf2Params, ScryptParams, KdfParams};

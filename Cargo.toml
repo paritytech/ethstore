@@ -10,6 +10,7 @@ serde = "0.7"
 serde_json = "0.7"
 serde_macros = { version = "0.7", optional = true }
 rustc-serialize = "0.3"
+rust-crypto = "0.2.36"
 
 [build-dependencies]
 serde_codegen = { version = "0.7", optional = true }
