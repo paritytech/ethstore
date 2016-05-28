@@ -1,4 +1,3 @@
-use rustc_serialize::hex::{FromHex, ToHex};
 use serde::{Serialize, Serializer, Deserialize, Deserializer, Error as SerdeError};
 use serde::de::Visitor;
 use serde_json::Value;

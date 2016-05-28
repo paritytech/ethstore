@@ -51,6 +51,18 @@ macro_rules! impl_hash {
 				}
 			}
 		}
+
+		impl From<[u8; $size]> for $name {
+			fn from(bytes: [u8; $size]) -> Self {
+				$name(bytes)
+			}
+		}
+
+		impl Into<[u8; $size]> for $name {
+			fn into(self) -> [u8; $size] {
+				self.0
+			}
+		}
 	}
 }
 

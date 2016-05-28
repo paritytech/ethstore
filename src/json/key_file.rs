@@ -1,18 +1,22 @@
-use std::io::Read;
+use std::io::{Read, Write};
 use serde_json;
 use super::{UUID, Version, Crypto, H160};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct KeyFile {
-	id: UUID,
-	version: Version,
-	crypto: Crypto,
-	address: H160,
+	pub id: UUID,
+	pub version: Version,
+	pub crypto: Crypto,
+	pub address: H160,
 }
 
 impl KeyFile {
 	pub fn load<R>(reader: R) -> Result<Self, serde_json::Error> where R: Read {
 		serde_json::from_reader(reader)
+	}
+
+	pub fn write<W>(&self, writer: &mut W) -> Result<(), serde_json::Error> where W: Write {
+		serde_json::to_writer(writer, self)
 	}
 }
 

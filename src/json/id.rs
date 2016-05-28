@@ -32,6 +32,12 @@ impl Into<String> for UUID {
 	}
 }
 
+impl Into<[u8; 16]> for UUID {
+	fn into(self) -> [u8; 16] {
+		self.0
+	}
+}
+
 fn clone_into(from: &str, into: &mut [u8]) -> Result<(), Error> {
 	let from = try!(from.from_hex().map_err(|_| Error::InvalidUUID));
 
