@@ -1,6 +1,5 @@
 use std::path::PathBuf;
-use ethkey::Address;
-use {SafeAccount, Error};
+use {Address, SafeAccount, Error};
 use super::{KeyDirectory, DiskDirectory};
 
 fn parity_dir_path() -> PathBuf {

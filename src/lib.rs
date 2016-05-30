@@ -26,4 +26,6 @@ pub use self::import::Import;
 pub use self::key_dir::KeyDirectory;
 pub use self::secret_store::SecretStore;
 
+pub use ethkey::{Secret, Public, Address};
+
 pub type Signature = [u8; 65];

@@ -1,8 +1,6 @@
 use std::fs;
 use std::path::PathBuf;
-use ethkey::Address;
-use json::KeyFile;
-use {SafeAccount, Error};
+use {json, SafeAccount, Error, Address};
 use super::KeyDirectory;
 
 pub struct DiskDirectory {
@@ -40,7 +38,7 @@ impl KeyDirectory for DiskDirectory {
 			
 		//transform them into safe account
 		let accounts = files.into_iter()
-			.map(KeyFile::load)
+			.map(json::KeyFile::load)
 			.filter_map(Result::ok)
 			.map(SafeAccount::from)
 			.collect();
@@ -51,7 +49,7 @@ impl KeyDirectory for DiskDirectory {
 	fn insert(&self, account: SafeAccount) -> Result<(), Error> {
 		let id = "id";
 		// transform account into key file
-		let keyfile: KeyFile = account.into();
+		let keyfile: json::KeyFile = account.into();
 		// open the keystore directory
 		let mut keyfile_path = self.path.clone();
 		keyfile_path.push(id);

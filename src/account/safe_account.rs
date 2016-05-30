@@ -1,5 +1,4 @@
-use ethkey::Address;
-use json;
+use {json, Address};
 use account::{Version, Cipher, Kdf};
 
 #[derive(Debug, PartialEq)]
