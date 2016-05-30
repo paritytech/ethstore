@@ -17,13 +17,12 @@ mod import;
 mod secret_store;
 
 pub use self::account::SafeAccount;
-pub use self::key_dir::{DiskDirectory, GethDirectory, ParityDirectory};
+pub use self::key_dir::{KeyDirectory, DiskDirectory, GethDirectory, ParityDirectory, DirectoryType};
 
 pub use self::error::Error;
 pub use self::ethstore::EthStore;
 pub use self::export::Export;
 pub use self::import::Import;
-pub use self::key_dir::KeyDirectory;
 pub use self::secret_store::SecretStore;
 
 pub use ethkey::{Secret, Public, Address};

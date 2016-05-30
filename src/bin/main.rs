@@ -4,7 +4,9 @@ extern crate ethkey;
 extern crate ethstore;
 
 use std::env;
+use rustc_serialize::hex::ToHex;
 use docopt::Docopt;
+use ethstore::{EthStore, SecretStore, GethDirectory, KeyDirectory, DirectoryType};
 
 pub const USAGE: &'static str = r#"
 Ethereum key management.
@@ -12,7 +14,7 @@ Ethereum key management.
 
 Usage:
     ethstore list dir <dir>
-    ethstore list (parity | geth)
+    ethstore list (parity | geth) [--testnet]
     ethstore [-h | --help]
 
 Options:
@@ -32,10 +34,12 @@ struct Args {
 	cmd_parity: bool,
 	cmd_geth: bool,
 	arg_dir: String,
+	flag_testnet: bool,
 }
 
 fn main() {
-	execute(env::args());
+	let result = execute(env::args()).unwrap();
+	println!("{}", result);
 }
 
 fn execute<S, I>(command: I) -> Result<String, ()> where I: IntoIterator<Item=S>, S: AsRef<str> {
@@ -49,7 +53,18 @@ fn execute<S, I>(command: I) -> Result<String, ()> where I: IntoIterator<Item=S>
 		} else if args.cmd_parity {
 			unimplemented!();
 		} else if args.cmd_geth {
-			unimplemented!();
+			let dir_type = match args.flag_testnet {
+				true => DirectoryType::Testnet,
+				false => DirectoryType::Main,
+			};
+
+			let store = EthStore::open(GethDirectory::new(dir_type)).unwrap();
+			let result = store.accounts().into_iter()
+				.enumerate()
+				.map(|(i, a)| format!("#{}: {}", i, a.to_hex()))
+				.collect::<Vec<String>>()
+				.join("\n");
+			Ok(result)
 		} else {
 			unimplemented!();
 		}

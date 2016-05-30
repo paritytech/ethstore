@@ -5,6 +5,11 @@ mod disk;
 mod geth;
 mod parity;
 
+pub enum DirectoryType {
+	Testnet,
+	Main,
+}
+
 pub trait KeyDirectory {
 	fn load(&self) -> Result<Vec<SafeAccount>, Error>;
 	fn insert(&self, account: SafeAccount) -> Result<(), Error>;

@@ -3,18 +3,18 @@ use account::{Version, Cipher, Kdf};
 
 #[derive(Debug, PartialEq)]
 pub struct Crypto {
-	cipher: Cipher,
-	ciphertext: [u8; 32],
-	kdf: Kdf,
-	mac: [u8; 32],
+	pub cipher: Cipher,
+	pub ciphertext: [u8; 32],
+	pub kdf: Kdf,
+	pub mac: [u8; 32],
 }
 
 #[derive(Debug, PartialEq)]
 pub struct SafeAccount {
-	id: [u8; 16],
-	version: Version,
-	address: Address,
-	crypto: Crypto,
+	pub id: [u8; 16],
+	pub version: Version,
+	pub address: Address,
+	pub crypto: Crypto,
 }
 
 impl From<json::Crypto> for Crypto {
