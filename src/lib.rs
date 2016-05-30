@@ -12,6 +12,7 @@ mod json;
 mod error;
 mod ethstore;
 mod export;
+mod geth;
 mod import;
 mod key_dir;
 mod secret_store;

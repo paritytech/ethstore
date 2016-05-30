@@ -1,6 +1,6 @@
 use ethkey::Address;
 use json;
-use account::{Version, Cipher, Kdf, Pbkdf2, Scrypt, Prf};
+use account::{Version, Cipher, Kdf};
 use Error;
 
 #[derive(Debug, PartialEq)]
