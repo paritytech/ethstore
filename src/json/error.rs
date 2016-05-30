@@ -3,7 +3,7 @@ use std::fmt;
 #[derive(Debug, PartialEq)]
 pub enum Error {
 	UnsupportedCipher,
-	InvalidCipherparams,
+	InvalidCipherParams,
 	UnsupportedKdf,
 	InvalidUUID,
 	UnsupportedVersion,
@@ -20,7 +20,7 @@ impl fmt::Display for Error {
 			Error::UnsupportedKdf => write!(f, "Unsupported kdf"),
 			Error::InvalidCiphertext => write!(f, "Invalid ciphertext"),
 			Error::UnsupportedCipher => write!(f, "Unsupported cipher"),
-			Error::InvalidCipherparams => write!(f, "Invalid cipherparams"),
+			Error::InvalidCipherParams => write!(f, "Invalid cipher params"),
 			Error::InvalidH256 => write!(f, "Invalid hash"),
 			Error::InvalidPrf => write!(f, "Invalid prf"),
 		}

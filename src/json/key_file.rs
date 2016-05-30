@@ -4,7 +4,7 @@ use serde::de::{Visitor, MapVisitor};
 use serde_json;
 use super::{UUID, Version, Crypto, H160};
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq)]
 pub struct KeyFile {
 	pub id: UUID,
 	pub version: Version,
@@ -12,35 +12,35 @@ pub struct KeyFile {
 	pub address: H160,
 }
 
-enum KeyFileFields {
+enum KeyFileField {
 	ID,
 	Version,
 	Crypto,
 	Address,
 }
 
-impl Deserialize for KeyFileFields {
-	fn deserialize<D>(deserializer: &mut D) -> Result<KeyFileFields, D::Error>
+impl Deserialize for KeyFileField {
+	fn deserialize<D>(deserializer: &mut D) -> Result<KeyFileField, D::Error>
 		where D: Deserializer
 	{
-		deserializer.deserialize(KeyFileFieldsVisitor)
+		deserializer.deserialize(KeyFileFieldVisitor)
 	}
 }
 
-struct KeyFileFieldsVisitor;
+struct KeyFileFieldVisitor;
 
-impl Visitor for KeyFileFieldsVisitor {
-	type Value = KeyFileFields;
+impl Visitor for KeyFileFieldVisitor {
+	type Value = KeyFileField;
 
 	fn visit_str<E>(&mut self, value: &str) -> Result<Self::Value, E>
 		where E: Error
 	{
 		match value {
-			"id" => Ok(KeyFileFields::ID),
-			"version" => Ok(KeyFileFields::Version),
-			"crypto" => Ok(KeyFileFields::Crypto),
-			"Crypto" => Ok(KeyFileFields::Crypto),
-			"address" => Ok(KeyFileFields::Address),
+			"id" => Ok(KeyFileField::ID),
+			"version" => Ok(KeyFileField::Version),
+			"crypto" => Ok(KeyFileField::Crypto),
+			"Crypto" => Ok(KeyFileField::Crypto),
+			"address" => Ok(KeyFileField::Address),
 			_ => Err(Error::custom(format!("Unknown field: '{}'", value))),
 		}
 	}
@@ -70,10 +70,10 @@ impl Visitor for KeyFileVisitor {
 
 		loop {
 			match try!(visitor.visit_key()) {
-				Some(KeyFileFields::ID) => { id = Some(try!(visitor.visit_value())); }
-				Some(KeyFileFields::Version) => { version = Some(try!(visitor.visit_value())); }
-				Some(KeyFileFields::Crypto) => { crypto = Some(try!(visitor.visit_value())); }
-				Some(KeyFileFields::Address) => { address = Some(try!(visitor.visit_value())); }
+				Some(KeyFileField::ID) => { id = Some(try!(visitor.visit_value())); }
+				Some(KeyFileField::Version) => { version = Some(try!(visitor.visit_value())); }
+				Some(KeyFileField::Crypto) => { crypto = Some(try!(visitor.visit_value())); }
+				Some(KeyFileField::Address) => { address = Some(try!(visitor.visit_value())); }
 				None => { break; }
 			}
 		}
@@ -117,7 +117,8 @@ impl KeyFile {
 	}
 
 	pub fn write<W>(&self, writer: &mut W) -> Result<(), serde_json::Error> where W: Write {
-		serde_json::to_writer(writer, self)
+		unimplemented!();
+		//serde_json::to_writer(writer, self)
 	}
 }
 
@@ -125,7 +126,7 @@ impl KeyFile {
 mod tests {
 	use std::str::FromStr;
 	use serde_json;
-	use json::{KeyFile, UUID, Version, Crypto, Cipher, Cipherparams, Aes128CtrParams, Kdf, ScryptParams, KdfParams, Prf, H128, H160, H256};
+	use json::{KeyFile, UUID, Version, Crypto, Cipher, CipherSer, CipherSerParams, Aes128Ctr, Kdf, KdfSer, Scrypt, KdfSerParams, Prf, H128, H160, H256};
 
 	#[test]
 	fn basic_keyfile() {
@@ -157,13 +158,11 @@ mod tests {
 			version: Version::V3,
 			address: H160::from_str("6edddfc6349aff20bc6467ccf276c5b52487f7a8").unwrap(),
 			crypto: Crypto {
-				cipher: Cipher::Aes128Ctr,
-				cipherparams: Cipherparams::Aes128Ctr(Aes128CtrParams {
+				cipher: Cipher::Aes128Ctr(Aes128Ctr {
 					iv: H128::from_str("b5a7ec855ec9e2c405371356855fec83").unwrap(),
 				}),
 				ciphertext: H256::from_str("7203da0676d141b138cd7f8e1a4365f59cc1aa6978dc5443f364ca943d7cb4bc").unwrap(),
-				kdf: Kdf::Scrypt,
-				kdfparams: KdfParams::Scrypt(ScryptParams {
+				kdf: Kdf::Scrypt(Scrypt {
 					n: 262144,
 					dklen: 32,
 					p: 1,
@@ -208,13 +207,11 @@ mod tests {
 			version: Version::V3,
 			address: H160::from_str("6edddfc6349aff20bc6467ccf276c5b52487f7a8").unwrap(),
 			crypto: Crypto {
-				cipher: Cipher::Aes128Ctr,
-				cipherparams: Cipherparams::Aes128Ctr(Aes128CtrParams {
+				cipher: Cipher::Aes128Ctr(Aes128Ctr {
 					iv: H128::from_str("b5a7ec855ec9e2c405371356855fec83").unwrap(),
 				}),
 				ciphertext: H256::from_str("7203da0676d141b138cd7f8e1a4365f59cc1aa6978dc5443f364ca943d7cb4bc").unwrap(),
-				kdf: Kdf::Scrypt,
-				kdfparams: KdfParams::Scrypt(ScryptParams {
+				kdf: Kdf::Scrypt(Scrypt {
 					n: 262144,
 					dklen: 32,
 					p: 1,

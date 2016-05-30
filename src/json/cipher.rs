@@ -1,36 +1,36 @@
 use serde::{Serialize, Serializer, Deserialize, Deserializer, Error as SerdeError};
 use serde::de::Visitor;
-use super::Error;
+use super::{Error, H128};
 
 #[derive(Debug, PartialEq)]
-pub enum Cipher {
+pub enum CipherSer {
 	Aes128Ctr,
 }
 
-impl Serialize for Cipher {
+impl Serialize for CipherSer {
 	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
 	where S: Serializer {
 		match *self {
-			Cipher::Aes128Ctr => serializer.serialize_str("aes-128-ctr"),
+			CipherSer::Aes128Ctr => serializer.serialize_str("aes-128-ctr"),
 		}
 	}
 }
 
-impl Deserialize for Cipher {
+impl Deserialize for CipherSer {
 	fn deserialize<D>(deserializer: &mut D) -> Result<Self, D::Error>
 	where D: Deserializer {
-		deserializer.deserialize(CipherVisitor)
+		deserializer.deserialize(CipherSerVisitor)
 	}
 }
 
-struct CipherVisitor;
+struct CipherSerVisitor;
 
-impl Visitor for CipherVisitor {
-	type Value = Cipher;
+impl Visitor for CipherSerVisitor {
+	type Value = CipherSer;
 
 	fn visit_str<E>(&mut self, value: &str) -> Result<Self::Value, E> where E: SerdeError {
 		match value {
-			"aes-128-ctr" => Ok(Cipher::Aes128Ctr),
+			"aes-128-ctr" => Ok(CipherSer::Aes128Ctr),
 			_ => Err(SerdeError::custom(Error::UnsupportedCipher))
 		}
 	}
@@ -40,3 +40,36 @@ impl Visitor for CipherVisitor {
 	}
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct Aes128Ctr {
+	pub iv: H128,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum CipherSerParams {
+	Aes128Ctr(Aes128Ctr),
+}
+
+impl Serialize for CipherSerParams {
+	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
+	where S: Serializer {
+		match *self {
+			CipherSerParams::Aes128Ctr(ref params) => params.serialize(serializer),
+		}
+	}
+}
+
+impl Deserialize for CipherSerParams {
+	fn deserialize<D>(deserializer: &mut D) -> Result<Self, D::Error>
+	where D: Deserializer {
+		Aes128Ctr::deserialize(deserializer)
+			.map(CipherSerParams::Aes128Ctr)
+			.map_err(|_| Error::InvalidCipherParams)
+			.map_err(SerdeError::custom)
+	}
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Cipher {
+	Aes128Ctr(Aes128Ctr),
+}

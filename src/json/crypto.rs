@@ -1,12 +1,122 @@
-use super::{Cipher, Cipherparams, Kdf, KdfParams, H256};
+use serde::{Deserialize, Deserializer, Error};
+use serde::de::{Visitor, MapVisitor};
+use super::{Cipher, CipherSer, Aes128Ctr, CipherSerParams, Kdf, KdfSer, KdfSerParams, H256};
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq)]
 pub struct Crypto {
 	pub cipher: Cipher,
-	pub cipherparams: Cipherparams,
 	pub ciphertext: H256,
 	pub kdf: Kdf,
-	pub kdfparams: KdfParams,
 	pub mac: H256,
+}
+
+enum CryptoField {
+	Cipher,
+	CipherParams,
+	CipherText,
+	Kdf,
+	KdfParams,
+	Mac,
+}
+
+impl Deserialize for CryptoField {
+	fn deserialize<D>(deserializer: &mut D) -> Result<CryptoField, D::Error>
+		where D: Deserializer
+	{
+		deserializer.deserialize(CryptoFieldVisitor)
+	}
+}
+
+struct CryptoFieldVisitor;
+
+impl Visitor for CryptoFieldVisitor {
+	type Value = CryptoField;
+
+	fn visit_str<E>(&mut self, value: &str) -> Result<Self::Value, E>
+		where E: Error
+	{
+		match value {
+			"cipher" => Ok(CryptoField::Cipher),
+			"cipherparams" => Ok(CryptoField::CipherParams),
+			"ciphertext" => Ok(CryptoField::CipherText),
+			"kdf" => Ok(CryptoField::Kdf),
+			"kdfparams" => Ok(CryptoField::KdfParams),
+			"mac" => Ok(CryptoField::Mac),
+			_ => Err(Error::custom(format!("Unknown field: '{}'", value))),
+		}
+	}
+}
+
+impl Deserialize for Crypto {
+	fn deserialize<D>(deserializer: &mut D) -> Result<Crypto, D::Error>
+		where D: Deserializer
+	{
+		static FIELDS: &'static [&'static str] = &["id", "version", "crypto", "Crypto", "address"];
+		deserializer.deserialize_struct("Crypto", FIELDS, CryptoVisitor)
+	}
+}
+
+struct CryptoVisitor;
+
+impl Visitor for CryptoVisitor {
+	type Value = Crypto;
+
+	fn visit_map<V>(&mut self, mut visitor: V) -> Result<Self::Value, V::Error>
+		where V: MapVisitor
+	{
+		let mut cipher = None;
+		let mut cipherparams = None;
+		let mut ciphertext = None;
+		let mut kdf = None;
+		let mut kdfparams = None;
+		let mut mac = None;
+
+		loop {
+			match try!(visitor.visit_key()) {
+				Some(CryptoField::Cipher) => { cipher = Some(try!(visitor.visit_value())); }
+				Some(CryptoField::CipherParams) => { cipherparams = Some(try!(visitor.visit_value())); }
+				Some(CryptoField::CipherText) => { ciphertext = Some(try!(visitor.visit_value())); }
+				Some(CryptoField::Kdf) => { kdf = Some(try!(visitor.visit_value())); }
+				Some(CryptoField::KdfParams) => { kdfparams = Some(try!(visitor.visit_value())); }
+				Some(CryptoField::Mac) => { mac = Some(try!(visitor.visit_value())); }
+				None => { break; }
+			}
+		}
+
+		let cipher = match (cipher, cipherparams) {
+			(Some(CipherSer::Aes128Ctr), Some(CipherSerParams::Aes128Ctr(params))) => Cipher::Aes128Ctr(params),
+			(None, _) => return Err(Error::missing_field("cipher")),
+			(Some(_), None) => return Err(Error::missing_field("cipherparams")),
+		};
+
+		let ciphertext = match ciphertext {
+			Some(ciphertext) => ciphertext,
+			None => try!(visitor.missing_field("ciphertext")),
+		};
+
+		let kdf = match (kdf, kdfparams) {
+			(Some(KdfSer::Pbkdf2), Some(KdfSerParams::Pbkdf2(params))) => Kdf::Pbkdf2(params),
+			(Some(KdfSer::Scrypt), Some(KdfSerParams::Scrypt(params))) => Kdf::Scrypt(params),
+			(Some(_), Some(_)) => return Err(Error::custom("Invalid cipherparams")),
+			(None, _) => return Err(Error::missing_field("kdf")),
+			(Some(_), None) => return Err(Error::missing_field("kdfparams")),
+		};
+
+		let mac = match mac {
+			Some(mac) => mac,
+			None => try!(visitor.missing_field("mac")),
+		};
+
+		try!(visitor.end());
+
+		let result = Crypto {
+			cipher: cipher,
+			ciphertext: ciphertext,
+			kdf: kdf,
+			mac: mac,
+		};
+
+		Ok(result)
+	}
 }
 
