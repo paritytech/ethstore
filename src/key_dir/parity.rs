@@ -1,9 +1,13 @@
 use std::path::PathBuf;
 use {Address, SafeAccount, Error};
-use super::{KeyDirectory, DiskDirectory};
+use super::{KeyDirectory, DiskDirectory, DirectoryType};
 
 fn parity_dir_path() -> PathBuf {
 	unimplemented!();
+}
+
+fn parity_keystore(t: DirectoryType) -> PathBuf {
+	parity_dir_path()
 }
 
 pub struct ParityDirectory {
@@ -11,9 +15,9 @@ pub struct ParityDirectory {
 }
 
 impl ParityDirectory {
-	pub fn new() -> Self {
+	pub fn new(t: DirectoryType) -> Self {
 		ParityDirectory {
-			dir: DiskDirectory::at(parity_dir_path()),
+			dir: DiskDirectory::at(parity_keystore(t)),
 		}
 	}
 }

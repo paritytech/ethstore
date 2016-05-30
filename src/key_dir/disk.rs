@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use {json, SafeAccount, Error, Address};
 use super::KeyDirectory;
 
@@ -8,16 +8,16 @@ pub struct DiskDirectory {
 }
 
 impl DiskDirectory {
-	pub fn at(path: PathBuf) -> Self {
+	pub fn at<P>(path: P) -> Self where P: AsRef<Path> {
 		DiskDirectory {
-			path: path
+			path: path.as_ref().to_path_buf(),
 		}
 	}
 }
 
 impl KeyDirectory for DiskDirectory {
 	fn load(&self) -> Result<Vec<SafeAccount>, Error> {
-		// it's not done using one iterator cause 
+		// it's not done using one iterator cause
 		// there is an issue with rustc and it takes tooo much time to compile
 
 		// enumerate all entries in keystore
@@ -35,14 +35,14 @@ impl KeyDirectory for DiskDirectory {
 			.map(fs::File::open)
 			.filter_map(Result::ok)
 			.collect();
-			
+
 		//transform them into safe account
 		let accounts = files.into_iter()
 			.map(json::KeyFile::load)
 			.filter_map(Result::ok)
 			.map(SafeAccount::from)
 			.collect();
-			
+
 		Ok(accounts)
 	}
 
