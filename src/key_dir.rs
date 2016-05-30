@@ -47,8 +47,7 @@ impl KeyDirectory for DiskDirectory {
 		let accounts = files.into_iter()
 			.map(KeyFile::load)
 			.filter_map(Result::ok)
-			.map(SafeAccount::from_json)
-			.filter_map(Result::ok)
+			.map(SafeAccount::from)
 			.collect();
 			
 		Ok(accounts)
