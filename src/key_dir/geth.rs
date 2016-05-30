@@ -1,10 +1,11 @@
+use std::env;
 use std::path::PathBuf;
 use {Address, SafeAccount, Error};
 use super::{KeyDirectory, DiskDirectory, DirectoryType};
 
 #[cfg(target_os = "macos")]
 fn geth_dir_path() -> PathBuf {
-	let mut home = ::std::env::home_dir().expect("Failed to get home dir");
+	let mut home = env::home_dir().expect("Failed to get home dir");
 	home.push("Library");
 	home.push("Ethereum");
 	home
@@ -13,7 +14,7 @@ fn geth_dir_path() -> PathBuf {
 #[cfg(windows)]
 /// Default path for ethereum installation on Windows
 pub fn geth_dir_path() -> PathBuf {
-	let mut home = ::std::env::home_dir().expect("Failed to get home dir");
+	let mut home = env::home_dir().expect("Failed to get home dir");
 	home.push("AppData");
 	home.push("Roaming");
 	home.push("Ethereum");
@@ -23,23 +24,23 @@ pub fn geth_dir_path() -> PathBuf {
 #[cfg(not(any(target_os = "macos", windows)))]
 /// Default path for ethereum installation on posix system which is not Mac OS
 pub fn geth_dir_path() -> PathBuf {
-	let mut home = ::std::env::home_dir().expect("Failed to get home dir");
+	let mut home = env::home_dir().expect("Failed to get home dir");
 	home.push(".ethereum");
 	home
 }
 
 fn geth_keystore(t: DirectoryType) -> PathBuf {
-	let mut home = geth_dir_path();
+	let mut dir = geth_dir_path();
 	match t {
 		DirectoryType::Testnet => {
-			home.push("testnet");
-			home.push("keystore");
+			dir.push("testnet");
+			dir.push("keystore");
 		},
 		DirectoryType::Main => {
-			home.push("keystore");
+			dir.push("keystore");
 		}
 	}
-	home
+	dir
 }
 
 pub struct GethDirectory {

@@ -1,13 +1,25 @@
+use std::env;
 use std::path::PathBuf;
 use {Address, SafeAccount, Error};
 use super::{KeyDirectory, DiskDirectory, DirectoryType};
 
 fn parity_dir_path() -> PathBuf {
-	unimplemented!();
+	let mut home = env::home_dir().expect("Failed to get home dir");
+	home.push(".parity");
+	home
 }
 
 fn parity_keystore(t: DirectoryType) -> PathBuf {
-	parity_dir_path()
+	let mut dir = parity_dir_path();
+	match t {
+		DirectoryType::Testnet => {
+			dir.push("testnet_keys");
+		},
+		DirectoryType::Main => {
+			dir.push("keys");
+		}
+	}
+	dir
 }
 
 pub struct ParityDirectory {
