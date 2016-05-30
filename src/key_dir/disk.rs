@@ -3,12 +3,7 @@ use std::path::PathBuf;
 use ethkey::Address;
 use json::KeyFile;
 use {SafeAccount, Error};
-
-pub trait KeyDirectory {
-	fn load(&self) -> Result<Vec<SafeAccount>, Error>;
-	fn insert(&self, account: SafeAccount) -> Result<(), Error>;
-	fn remove(&self, address: &Address) -> Result<(), Error>;
-}
+use super::KeyDirectory;
 
 pub struct DiskDirectory {
 	path: PathBuf,

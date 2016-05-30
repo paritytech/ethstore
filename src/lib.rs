@@ -8,16 +8,16 @@ extern crate crypto;
 extern crate ethkey;
 
 mod account;
+mod key_dir;
 mod json;
 mod error;
 mod ethstore;
 mod export;
-mod geth;
 mod import;
-mod key_dir;
 mod secret_store;
 
 pub use self::account::SafeAccount;
+pub use self::key_dir::{DiskDirectory, GethDirectory, ParityDirectory};
 
 pub use self::error::Error;
 pub use self::ethstore::EthStore;
