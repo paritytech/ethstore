@@ -13,10 +13,18 @@ Ethereum key management.
   Copyright 2016 Ethcore (UK) Limited
 
 Usage:
+    ethstore create dir <dir> (random | prefix <p> <i> | brain <seed>)
+    ethstore create (geth | parity) (random | prefix <p> <i> | brain <seed>) [--testnet]
+    ethstore change-pwd dir <dir> <address> <old-pwd> <new-pwd>
+    ethstore change-pwd (geth | parity) <address> <old-pwd> <new-pwd> [--testnet]
     ethstore list dir <dir>
     ethstore list (geth | parity) [--testnet]
     ethstore export dir <src> <dst>
     ethstore export geth parity [--testnet]
+    ethstore remove dir <dir> <address> <password>
+    ethstore remove (geth | parity) <address> <password> [--testnet]
+    ethstore sign dir <dir> <address> <password> <message>
+    ethstore sign (geth | parity) <address> <password> <message> [--testnet]
     ethstore [-h | --help]
 
 Options:
@@ -24,22 +32,34 @@ Options:
     --testnet          Use testnet secret store.
 
 Commands:
+    create             Create new account.
+    change-pwd         Change password.
     list               List accounts.
-    dir                Use directory.
+    export             Export accounts src to dst.
+    remove             Remove account.
+    sign               Sign message.
+    dir                Use keystore located in directory.
     parity             Use parity keystore.
     geth               Use geth keystore.
+    random             Generate new account randomly.
+    prefix             Generate new account with prefixed address.
+    brain              Generate new brain-wallet account.
 "#;
 
 #[derive(Debug, RustcDecodable)]
 struct Args {
 	cmd_list: bool,
 	cmd_export: bool,
+	cmd_sign: bool,
 	cmd_dir: bool,
 	cmd_parity: bool,
 	cmd_geth: bool,
 	arg_dir: String,
 	arg_src: String,
 	arg_dst: String,
+	arg_address: String,
+	arg_password: String,
+	arg_message: String,
 	flag_testnet: bool,
 }
 
@@ -73,6 +93,8 @@ fn execute<S, I>(command: I) -> Result<String, ()> where I: IntoIterator<Item=S>
 			.collect::<Vec<String>>()
 			.join("\n");
 		Ok(result)
+	} else if args.cmd_export {
+		unimplemented!();
 	} else {
 		unimplemented!();
 	}
