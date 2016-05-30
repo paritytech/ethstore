@@ -4,7 +4,7 @@ use serde::de::{Visitor, MapVisitor};
 use serde_json;
 use super::{UUID, Version, Crypto, H160};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct KeyFile {
 	pub id: UUID,
 	pub version: Version,
@@ -117,8 +117,7 @@ impl KeyFile {
 	}
 
 	pub fn write<W>(&self, writer: &mut W) -> Result<(), serde_json::Error> where W: Write {
-		unimplemented!();
-		//serde_json::to_writer(writer, self)
+		serde_json::to_writer(writer, self)
 	}
 }
 
@@ -126,7 +125,7 @@ impl KeyFile {
 mod tests {
 	use std::str::FromStr;
 	use serde_json;
-	use json::{KeyFile, UUID, Version, Crypto, Cipher, CipherSer, CipherSerParams, Aes128Ctr, Kdf, KdfSer, Scrypt, KdfSerParams, Prf, H128, H160, H256};
+	use json::{KeyFile, UUID, Version, Crypto, Cipher, Aes128Ctr, Kdf, Scrypt, Prf, H128, H160, H256};
 
 	#[test]
 	fn basic_keyfile() {
@@ -178,7 +177,7 @@ mod tests {
 	}
 
 	#[test]
-	fn old_keyfile() {
+	fn capital_crypto_keyfile() {
 		let json = r#"
 		{
 			"address": "6edddfc6349aff20bc6467ccf276c5b52487f7a8",
@@ -224,5 +223,33 @@ mod tests {
 		
 		let keyfile: KeyFile = serde_json::from_str(json).unwrap();
 		assert_eq!(keyfile, expected);
+	}
+
+	#[test]
+	fn to_and_from_json() {
+		let file = KeyFile {
+			id: UUID::from_str("8777d9f6-7860-4b9b-88b7-0b57ee6b3a73").unwrap(),
+			version: Version::V3,
+			address: H160::from_str("6edddfc6349aff20bc6467ccf276c5b52487f7a8").unwrap(),
+			crypto: Crypto {
+				cipher: Cipher::Aes128Ctr(Aes128Ctr {
+					iv: H128::from_str("b5a7ec855ec9e2c405371356855fec83").unwrap(),
+				}),
+				ciphertext: H256::from_str("7203da0676d141b138cd7f8e1a4365f59cc1aa6978dc5443f364ca943d7cb4bc").unwrap(),
+				kdf: Kdf::Scrypt(Scrypt {
+					n: 262144,
+					dklen: 32,
+					p: 1,
+					r: 8,
+					salt: H256::from_str("1e8642fdf1f87172492c1412fc62f8db75d796cdfa9c53c3f2b11e44a2a1b209").unwrap(),
+				}),
+				mac: H256::from_str("46325c5d4e8c991ad2683d525c7854da387138b6ca45068985aa4959fa2b8c8f").unwrap(),
+			},
+		};
+
+		let serialized = serde_json::to_string(&file).unwrap();
+		let deserialized = serde_json::from_str(&serialized).unwrap();
+
+		assert_eq!(file, deserialized);
 	}
 }
