@@ -7,19 +7,19 @@ pub enum Prf {
 
 #[derive(Debug, PartialEq)]
 pub struct Pbkdf2 {
-	c: u64,
-	dklen: u64,
-	prf: Prf,
-	salt: [u8; 32],
+	pub c: u32,
+	pub dklen: u32,
+	pub prf: Prf,
+	pub salt: [u8; 32],
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Scrypt {
-	dklen: u64,
-	p: u64,
-	n: u64,
-	r: u64,
-	salt: [u8; 32],
+	pub dklen: u32,
+	pub p: u32,
+	pub n: u32,
+	pub r: u32,
+	pub salt: [u8; 32],
 }
 
 #[derive(Debug, PartialEq)]

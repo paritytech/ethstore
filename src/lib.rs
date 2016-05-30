@@ -4,12 +4,15 @@
 extern crate serde;
 extern crate serde_json;
 extern crate rustc_serialize;
-extern crate crypto;
+extern crate crypto as rcrypto;
+extern crate tiny_keccak;
 extern crate ethkey;
 
 mod account;
-mod key_dir;
 mod json;
+mod key_dir;
+mod crypto;
+
 mod error;
 mod ethstore;
 mod export;

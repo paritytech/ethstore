@@ -10,7 +10,7 @@ pub enum KdfSer {
 }
 
 impl Serialize for KdfSer {
-	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
+	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error>
 	where S: Serializer {
 		match *self {
 			KdfSer::Pbkdf2 => serializer.serialize_str("pbkdf2"),
@@ -50,7 +50,7 @@ pub enum Prf {
 }
 
 impl Serialize for Prf {
-	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
+	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error>
 	where S: Serializer {
 		match *self {
 			Prf::HmacSha256 => serializer.serialize_str("hmac-sha256"),
@@ -84,18 +84,18 @@ impl Visitor for PrfVisitor {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Pbkdf2 {
-	pub c: u64,
-	pub dklen: u64,
+	pub c: u32,
+	pub dklen: u32,
 	pub prf: Prf,
 	pub salt: H256,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Scrypt {
-	pub dklen: u64,
-	pub p: u64,
-	pub n: u64,
-	pub r: u64,
+	pub dklen: u32,
+	pub p: u32,
+	pub n: u32,
+	pub r: u32,
 	pub salt: H256,
 }
 
@@ -106,7 +106,7 @@ pub enum KdfSerParams {
 }
 
 impl Serialize for KdfSerParams {
-	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
+	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error>
 	where S: Serializer {
 		match *self {
 			KdfSerParams::Pbkdf2(ref params) => params.serialize(serializer),

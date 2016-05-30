@@ -1,4 +1,5 @@
-use {json, Address};
+use {json, Address, Secret, Error, crypto};
+use crypto::Keccak256;
 use account::{Version, Cipher, Kdf};
 
 #[derive(Debug, PartialEq)]
@@ -58,5 +59,30 @@ impl Into<json::KeyFile> for SafeAccount {
 			address: From::from(self.address),
 			crypto: self.crypto.into(),
 		}
+	}
+}
+
+impl SafeAccount {
+	pub fn secret(&self, password: &str) -> Result<Secret, Error> {
+		let (derived_left_bits, derived_right_bits) = match self.crypto.kdf {
+			Kdf::Pbkdf2(ref params) => crypto::derive_key_iterations(password, &params.salt, params.c),
+			Kdf::Scrypt(ref params) => crypto::derive_key_scrypt(password, &params.salt, params.n, params.p, params.r),
+		};
+
+		let mac = crypto::derive_mac(&derived_right_bits, &self.crypto.ciphertext).keccak256();
+
+		if mac != self.crypto.mac {
+			return Err(Error::InvalidPassword);
+		}
+
+		let mut secret = [0u8; 32];
+
+		match self.crypto.cipher {
+			Cipher::Aes128Ctr(ref params) => {
+				crypto::aes::decrypt(&derived_left_bits, &params.iv, &self.crypto.ciphertext, &mut secret)
+			},
+		}
+
+		Ok(secret)
 	}
 }
