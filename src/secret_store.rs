@@ -2,7 +2,7 @@ use ethkey::{Generator, Address};
 use {Error, Signature};
 
 pub trait SecretStore {
-	fn create_account<T>(&self, generator: T, password: &str) -> Address where T: Generator;
+	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator;
 
 	fn accounts(&self) -> Vec<Address>;
 

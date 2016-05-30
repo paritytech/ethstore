@@ -6,6 +6,8 @@ pub enum Error {
 	Io(IoError),
 	InvalidPassword,
 	InvalidSecret,
+	InvalidAccount,
+	CreationFailed,
 	EthKey(EthKeyError),
 }
 

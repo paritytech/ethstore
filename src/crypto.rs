@@ -5,8 +5,8 @@ use rcrypto::sha2::Sha256;
 use rcrypto::hmac::Hmac;
 
 pub const KEY_LENGTH: usize = 32;
-const KEY_ITERATIONS: usize = 10240;
-const KEY_LENGTH_AES: usize = KEY_LENGTH / 2;
+pub const KEY_ITERATIONS: usize = 10240;
+pub const KEY_LENGTH_AES: usize = KEY_LENGTH / 2;
 
 pub fn derive_key_iterations(password: &str, salt: &[u8; 32], c: u32) -> (Vec<u8>, Vec<u8>) {
 	let mut h_mac = Hmac::new(Sha256::new(), password.as_bytes());
