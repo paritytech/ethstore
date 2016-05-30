@@ -1,6 +1,7 @@
 #![cfg_attr(feature="nightly", feature(custom_derive, plugin))]
 #![cfg_attr(feature="nightly", plugin(serde_macros))]
 
+extern crate rand;
 extern crate serde;
 extern crate serde_json;
 extern crate rustc_serialize;
@@ -17,6 +18,7 @@ mod error;
 mod ethstore;
 mod export;
 mod import;
+mod random;
 mod secret_store;
 
 pub use self::account::SafeAccount;
@@ -28,6 +30,4 @@ pub use self::export::Export;
 pub use self::import::Import;
 pub use self::secret_store::SecretStore;
 
-pub use ethkey::{Secret, Public, Address};
-
-pub type Signature = [u8; 65];
+pub use ethkey::{Secret, Public, Address, Signature};

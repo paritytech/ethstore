@@ -4,7 +4,7 @@ use rcrypto::scrypt::{scrypt, ScryptParams};
 use rcrypto::sha2::Sha256;
 use rcrypto::hmac::Hmac;
 
-const KEY_LENGTH: usize = 32;
+pub const KEY_LENGTH: usize = 32;
 const KEY_ITERATIONS: usize = 10240;
 const KEY_LENGTH_AES: usize = KEY_LENGTH / 2;
 
