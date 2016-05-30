@@ -1,7 +1,6 @@
 use ethkey::Address;
 use json;
 use account::{Version, Cipher, Kdf};
-use Error;
 
 #[derive(Debug, PartialEq)]
 pub struct Crypto {
@@ -19,40 +18,46 @@ pub struct SafeAccount {
 	crypto: Crypto,
 }
 
-impl SafeAccount {
-	pub fn from_json(file: json::KeyFile) -> Result<SafeAccount, Error> {
-		let result = SafeAccount {
-			id: file.id.into(),
-			version: Version::from(file.version),
-			address: file.address.into(),
-			crypto: Crypto {
-				cipher: Cipher::from_json(file.crypto.cipher, file.crypto.cipherparams),
-				ciphertext: file.crypto.ciphertext.into(),
-				kdf: try!(Kdf::from_json(file.crypto.kdf, file.crypto.kdfparams)),
-				mac: file.crypto.mac.into(),
-			}
-		};
+impl From<json::Crypto> for Crypto {
+	fn from(json: json::Crypto) -> Self {
+		Crypto {
+			cipher: From::from(json.cipher),
+			ciphertext: json.ciphertext.into(),
+			kdf: From::from(json.kdf),
+			mac: json.mac.into(),
+		}
+	}
+}
 
-		Ok(result)
+impl Into<json::Crypto> for Crypto {
+	fn into(self) -> json::Crypto {
+		json::Crypto {
+			cipher: self.cipher.into(),
+			ciphertext: From::from(self.ciphertext),
+			kdf: self.kdf.into(),
+			mac: From::from(self.mac),
+		}
+	}
+}
+
+impl From<json::KeyFile> for SafeAccount {
+	fn from(json: json::KeyFile) -> Self {
+		SafeAccount {
+			id: json.id.into(),
+			version: From::from(json.version),
+			address: json.address.into(),
+			crypto: From::from(json.crypto),
+		}
 	}
 }
 
 impl Into<json::KeyFile> for SafeAccount {
 	fn into(self) -> json::KeyFile {
-		let cipher = self.crypto.cipher.into_json();
-		let kdf = self.crypto.kdf.into_json();
 		json::KeyFile {
 			id: From::from(self.id),
 			version: self.version.into(),
 			address: From::from(self.address),
-			crypto: json::Crypto {
-				cipher: cipher.0,
-				cipherparams: cipher.1,
-				ciphertext: From::from(self.crypto.ciphertext),
-				kdf: kdf.0,
-				kdfparams: kdf.1,
-				mac: From::from(self.crypto.mac),
-			}
+			crypto: self.crypto.into(),
 		}
 	}
 }

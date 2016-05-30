@@ -1,7 +1,7 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer, Error};
 use serde::de::{Visitor, MapVisitor};
 use serde::ser;
-use super::{Cipher, CipherSer, Aes128Ctr, CipherSerParams, Kdf, KdfSer, KdfSerParams, H256};
+use super::{Cipher, CipherSer, CipherSerParams, Kdf, KdfSer, KdfSerParams, H256};
 
 #[derive(Debug, PartialEq)]
 pub struct Crypto {

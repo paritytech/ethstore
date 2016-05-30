@@ -7,7 +7,7 @@ extern crate rustc_serialize;
 extern crate crypto;
 extern crate ethkey;
 
-//mod account;
+mod account;
 mod json;
 //mod error;
 //mod ethstore;
@@ -17,7 +17,7 @@ mod json;
 //mod key_dir;
 //mod secret_store;
 
-//pub use self::account::SafeAccount;
+pub use self::account::SafeAccount;
 
 //pub use self::error::Error;
 //pub use self::ethstore::EthStore;

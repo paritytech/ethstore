@@ -10,26 +10,34 @@ pub enum Cipher {
 	Aes128Ctr(Aes128Ctr),
 }
 
-impl Cipher {
-	pub fn from_json(cipher: json::Cipher, params: json::Cipherparams) -> Self {
-		match (cipher, params) {
-			(json::Cipher::Aes128Ctr, json::Cipherparams::Aes128Ctr(params)) => {
-				Cipher::Aes128Ctr(Aes128Ctr {
-					iv: params.iv.into(),
-				})
-			}
+impl From<json::Aes128Ctr> for Aes128Ctr {
+	fn from(json: json::Aes128Ctr) -> Self {
+		Aes128Ctr {
+			iv: json.iv.into()
 		}
 	}
+}
 
-	pub fn into_json(self) -> (json::Cipher, json::Cipherparams) {
+impl Into<json::Aes128Ctr> for Aes128Ctr {
+	fn into(self) -> json::Aes128Ctr {
+		json::Aes128Ctr {
+			iv: From::from(self.iv)
+		}
+	}
+}
+
+impl From<json::Cipher> for Cipher {
+	fn from(json: json::Cipher) -> Self {
+		match json {
+			json::Cipher::Aes128Ctr(params) => Cipher::Aes128Ctr(From::from(params)),
+		}
+	}
+}
+
+impl Into<json::Cipher> for Cipher {
+	fn into(self) -> json::Cipher {
 		match self {
-			Cipher::Aes128Ctr(params) => {
-				let cipher = json::Cipher::Aes128Ctr;
-				let params = json::Cipherparams::Aes128Ctr(json::Aes128CtrParams {
-					iv:	From::from(params.iv),
-				});
-				(cipher, params)
-			}
+			Cipher::Aes128Ctr(params) => json::Cipher::Aes128Ctr(params.into()),
 		}
 	}
 }

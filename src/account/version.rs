@@ -6,8 +6,8 @@ pub enum Version {
 }
 
 impl From<json::Version> for Version {
-	fn from(v: json::Version) -> Self {
-		match v {
+	fn from(json: json::Version) -> Self {
+		match json {
 			json::Version::V3 => Version::V3,
 		}
 	}
