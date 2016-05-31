@@ -27,7 +27,15 @@ pub struct ParityDirectory {
 }
 
 impl ParityDirectory {
-	pub fn new(t: DirectoryType) -> Self {
+	pub fn create(t: DirectoryType) -> Result<Self, Error> {
+		let result = ParityDirectory {
+			dir: try!(DiskDirectory::create(parity_keystore(t))),
+		};
+
+		Ok(result)
+	}
+
+	pub fn open(t: DirectoryType) -> Self {
 		ParityDirectory {
 			dir: DiskDirectory::at(parity_keystore(t)),
 		}

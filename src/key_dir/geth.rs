@@ -48,7 +48,15 @@ pub struct GethDirectory {
 }
 
 impl GethDirectory {
-	pub fn new(t: DirectoryType) -> Self {
+	pub fn create(t: DirectoryType) -> Result<Self, Error> {
+		let result = GethDirectory {
+			dir: try!(DiskDirectory::create(geth_keystore(t))),
+		};
+
+		Ok(result)
+	}
+
+	pub fn open(t: DirectoryType) -> Self {
 		GethDirectory {
 			dir: DiskDirectory::at(geth_keystore(t)),
 		}

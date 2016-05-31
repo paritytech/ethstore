@@ -17,6 +17,11 @@ pub struct DiskDirectory {
 }
 
 impl DiskDirectory {
+	pub fn create<P>(path: P) -> Result<Self, Error> where P: AsRef<Path> {
+		try!(fs::create_dir_all(&path));
+		Ok(Self::at(path))
+	}
+
 	pub fn at<P>(path: P) -> Self where P: AsRef<Path> {
 		DiskDirectory {
 			path: path.as_ref().to_path_buf(),

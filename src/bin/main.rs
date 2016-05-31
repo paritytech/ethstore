@@ -82,9 +82,9 @@ fn execute<S, I>(command: I) -> Result<String, ()> where I: IntoIterator<Item=S>
 		let store = if args.cmd_dir {
 			EthStore::open(DiskDirectory::at(args.arg_dir)).unwrap()
 		} else if args.cmd_parity {
-			EthStore::open(ParityDirectory::new(dir_type)).unwrap()
+			EthStore::open(ParityDirectory::open(dir_type)).unwrap()
 		} else {
-			EthStore::open(GethDirectory::new(dir_type)).unwrap()
+			EthStore::open(GethDirectory::open(dir_type)).unwrap()
 		};
 
 		let result = store.accounts().into_iter()
