@@ -16,33 +16,26 @@ Ethereum key management.
   Copyright 2016 Ethcore (UK) Limited
 
 Usage:
-    ethstore insert dir <dir> <secret> <password>
-    ethstore insert (geth | parity) <secret> <password>
-    ethstore change-pwd dir <dir> <address> <old-pwd> <new-pwd>
-    ethstore change-pwd (geth | parity) <address> <old-pwd> <new-pwd> [--testnet]
-    ethstore list dir <dir>
-    ethstore list (geth | parity) [--testnet]
-    ethstore export dir <src> <dst>
-    ethstore export geth parity [--testnet]
-    ethstore remove dir <dir> <address> <password>
-    ethstore remove (geth | parity) <address> <password> [--testnet]
-    ethstore sign dir <dir> <address> <password> <message>
-    ethstore sign (geth | parity) <address> <password> <message> [--testnet]
+    ethstore insert <secret> <password> [--dir DIR]
+    ethstore change-pwd <address> <old-pwd> <new-pwd> [--dir DIR]
+    ethstore list [--dir DIR]
+    ethstore import <src> [--dir DIR]
+    ethstore remove <address> <password> [--dir DIR]
+    ethstore sign <address> <password> <message> [--dir DIR]
     ethstore [-h | --help]
 
 Options:
     -h, --help         Display this message and exit.
-    --testnet          Use testnet secret store.
+    --dir DIR          Specify the secret store directory. It may be either
+                       parity, parity-test, geth, geth-test
+                       or a path [default: parity].
 
 Commands:
     insert             Save account with password.
     change-pwd         Change password.
     list               List accounts.
-    export             Export accounts src to dst.
+    import             Import accounts from src.
     remove             Remove account.
     sign               Sign message.
-    dir                Use keystore located in directory.
-    parity             Use parity keystore.
-    geth               Use geth keystore.
 ```
 
