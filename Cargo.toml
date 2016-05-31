@@ -5,6 +5,7 @@ authors = ["debris <marek.kotewicz@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
+libc = "0.2.11"
 rand = "0.3.14"
 ethkey = { git = "https://github.com/ethcore/ethkey" }
 serde = "0.7"

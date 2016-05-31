@@ -1,8 +1,16 @@
-use std::fs;
+use std::{fs, ffi, io};
 use std::path::{PathBuf, Path};
 use std::collections::HashMap;
-use {json, SafeAccount, Error, Address};
+use {libc, json, SafeAccount, Error, Address};
 use super::KeyDirectory;
+
+fn restrict_permissions_to_owner(file_path: &Path) -> Result<(), i32>  {
+	let cstr = ffi::CString::new(file_path.to_str().unwrap()).unwrap();
+	match unsafe { libc::chmod(cstr.as_ptr(), libc::S_IWUSR | libc::S_IRUSR) } {
+		0 => Ok(()),
+		x => Err(x),
+	}
+}
 
 pub struct DiskDirectory {
 	path: PathBuf,
@@ -62,8 +70,13 @@ impl KeyDirectory for DiskDirectory {
 		keyfile_path.push(id);
 
 		// save the file
-		let mut file = try!(fs::File::create(keyfile_path));
+		let mut file = try!(fs::File::create(&keyfile_path));
 		keyfile.write(&mut file);
+
+		if let Err(_) = restrict_permissions_to_owner(&keyfile_path) {
+			fs::remove_file(&keyfile_path);
+			return Err(Error::Io(io::Error::last_os_error()));
+		}
 
 		Ok(())
 	}
