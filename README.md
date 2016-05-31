@@ -44,8 +44,5 @@ Commands:
     dir                Use keystore located in directory.
     parity             Use parity keystore.
     geth               Use geth keystore.
-    random             Generate new account randomly.
-    prefix             Generate new account with prefixed address.
-    brain              Generate new brain-wallet account.
 ```
 
