@@ -2,12 +2,12 @@
 
 [![Build Status][travis-image]][travis-url]
 
-[travis-image]: https://travis-ci.org/debris/ethstore.svg?branch=master
-[travis-url]: https://travis-ci.org/debris/ethstore
+[travis-image]: https://travis-ci.org/ethcore/ethstore.svg?branch=master
+[travis-url]: https://travis-ci.org/ethcore/ethstore
 
 Ethereum key management.
 
-[Documentation](http://debris.github.io/ethstore/ethstore/index.html)
+[Documentation](http://ethcore.github.io/ethstore/ethstore/index.html)
 
 ### Usage
 
