@@ -16,8 +16,8 @@ Ethereum key management.
   Copyright 2016 Ethcore (UK) Limited
 
 Usage:
-    ethstore create dir <dir> (random | prefix <p> <i> | brain <seed>)
-    ethstore create (geth | parity) (random | prefix <p> <i> | brain <seed>) [--testnet]
+    ethstore insert dir <dir> <secret> <password>
+    ethstore insert (geth | parity) <secret> <password>
     ethstore change-pwd dir <dir> <address> <old-pwd> <new-pwd>
     ethstore change-pwd (geth | parity) <address> <old-pwd> <new-pwd> [--testnet]
     ethstore list dir <dir>
@@ -35,7 +35,7 @@ Options:
     --testnet          Use testnet secret store.
 
 Commands:
-    create             Create new account.
+    insert             Save account with password.
     change-pwd         Change password.
     list               List accounts.
     export             Export accounts src to dst.
