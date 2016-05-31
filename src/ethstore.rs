@@ -12,15 +12,15 @@ pub struct EthStore {
 }
 
 impl EthStore {
-	pub fn open<K>(directory: K) -> Result<Self, Error> where K: KeyDirectory + 'static {
+	pub fn open(directory: Box<KeyDirectory>) -> Result<Self, Error> {
 		Self::open_with_iterations(directory, KEY_ITERATIONS as u32)
 	}
 
-	pub fn open_with_iterations<K>(directory: K, iterations: u32) -> Result<Self, Error> where K: KeyDirectory + 'static {
+	pub fn open_with_iterations(directory: Box<KeyDirectory>, iterations: u32) -> Result<Self, Error> {
 		let accounts = try!(directory.load());
 		let cache = accounts.into_iter().map(|account| (account.address.clone(), account)).collect();
 		let store = EthStore {
-			dir: Box::new(directory),
+			dir: directory,
 			iterations: iterations,
 			cache: RwLock::new(cache),
 		};

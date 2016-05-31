@@ -17,7 +17,6 @@ mod crypto;
 
 mod error;
 mod ethstore;
-mod export;
 mod import;
 mod primitives;
 mod random;
@@ -28,8 +27,7 @@ pub use self::key_dir::{KeyDirectory, DiskDirectory, GethDirectory, ParityDirect
 
 pub use self::error::Error;
 pub use self::ethstore::EthStore;
-pub use self::export::Export;
-pub use self::import::Import;
+pub use self::import::import_accounts;
 pub use self::primitives::{Secret, Public, Address, Message, Signature};
 pub use self::secret_store::SecretStore;
 

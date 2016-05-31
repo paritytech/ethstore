@@ -19,7 +19,7 @@ Usage:
     ethstore insert <secret> <password> [--dir DIR]
     ethstore change-pwd <address> <old-pwd> <new-pwd> [--dir DIR]
     ethstore list [--dir DIR]
-    ethstore import <src> [--dir DIR]
+    ethstore import [--src DIR] [--dir DIR]
     ethstore remove <address> <password> [--dir DIR]
     ethstore sign <address> <password> <message> [--dir DIR]
     ethstore [-h | --help]
@@ -29,6 +29,9 @@ Options:
     --dir DIR          Specify the secret store directory. It may be either
                        parity, parity-test, geth, geth-test
                        or a path [default: parity].
+    --src DIR          Specify import source. It may be either
+                       parity, parity-test, get, geth-test
+                       or a path [default: geth].
 
 Commands:
     insert             Save account with password.
@@ -38,4 +41,3 @@ Commands:
     remove             Remove account.
     sign               Sign message.
 ```
-

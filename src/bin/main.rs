@@ -4,9 +4,10 @@ extern crate ethkey;
 extern crate ethstore;
 
 use std::env;
+use std::ops::Deref;
 use std::str::FromStr;
 use docopt::Docopt;
-use ethstore::{EthStore, SecretStore, ParityDirectory, DiskDirectory, GethDirectory, DirectoryType, Secret, Address, Message};
+use ethstore::{EthStore, SecretStore, ParityDirectory, DiskDirectory, GethDirectory, KeyDirectory, DirectoryType, Secret, Address, Message, import_accounts, Error};
 
 pub const USAGE: &'static str = r#"
 Ethereum key management.
@@ -16,7 +17,7 @@ Usage:
     ethstore insert <secret> <password> [--dir DIR]
     ethstore change-pwd <address> <old-pwd> <new-pwd> [--dir DIR]
     ethstore list [--dir DIR]
-    ethstore import <src> [--dir DIR]
+    ethstore import [--src DIR] [--dir DIR]
     ethstore remove <address> <password> [--dir DIR]
     ethstore sign <address> <password> <message> [--dir DIR]
     ethstore [-h | --help]
@@ -26,6 +27,9 @@ Options:
     --dir DIR          Specify the secret store directory. It may be either
                        parity, parity-test, geth, geth-test
                        or a path [default: parity].
+    --src DIR          Specify import source. It may be either
+                       parity, parity-test, get, geth-test
+                       or a path [default: geth].
 
 Commands:
     insert             Save account with password.
@@ -48,9 +52,9 @@ struct Args {
 	arg_password: String,
 	arg_old_pwd: String,
 	arg_new_pwd: String,
-	arg_src: String,
 	arg_address: String,
 	arg_message: String,
+	flag_src: String,
 	flag_dir: String,
 }
 
@@ -59,18 +63,32 @@ fn main() {
 	println!("{}", result);
 }
 
+fn key_dir(location: &str) -> Result<Box<KeyDirectory>, Error> {
+	let dir: Box<KeyDirectory> = match location {
+		"parity" => Box::new(ParityDirectory::create(DirectoryType::Main).unwrap()),
+		"parity-test" => Box::new(ParityDirectory::create(DirectoryType::Testnet).unwrap()),
+		"geth" => Box::new(GethDirectory::create(DirectoryType::Main).unwrap()),
+		"geth-test" => Box::new(GethDirectory::create(DirectoryType::Testnet).unwrap()),
+		path => Box::new(DiskDirectory::create(path).unwrap()),
+	};
+
+	Ok(dir)
+}
+
+fn format_accounts(accounts: &[Address]) -> String {
+	accounts.iter()
+		.enumerate()
+		.map(|(i, a)| format!("{:2}: {}", i, a))
+		.collect::<Vec<String>>()
+		.join("\n")
+}
+
 fn execute<S, I>(command: I) -> Result<String, ()> where I: IntoIterator<Item=S>, S: AsRef<str> {
 	let args: Args = Docopt::new(USAGE)
 		.and_then(|d| d.argv(command).decode())
 		.unwrap_or_else(|e| e.exit());
 
-	let store = match args.flag_dir.as_ref() {
-		"parity" => EthStore::open(ParityDirectory::create(DirectoryType::Main).unwrap()).unwrap(),
-		"parity-test" => EthStore::open(ParityDirectory::create(DirectoryType::Testnet).unwrap()).unwrap(),
-		"geth" => EthStore::open(GethDirectory::create(DirectoryType::Main).unwrap()).unwrap(),
-		"geth-test" => EthStore::open(GethDirectory::create(DirectoryType::Testnet).unwrap()).unwrap(),
-		path => EthStore::open(DiskDirectory::create(path).unwrap()).unwrap(),
-	};
+	let store = EthStore::open(key_dir(&args.flag_dir).unwrap()).unwrap();
 
 	return if args.cmd_insert {
 		let secret = Secret::from_str(&args.arg_secret).unwrap();
@@ -81,13 +99,13 @@ fn execute<S, I>(command: I) -> Result<String, ()> where I: IntoIterator<Item=S>
 		let ok = store.change_password(&address, &args.arg_old_pwd, &args.arg_new_pwd).is_ok();
 		Ok(format!("{}", ok))
 	} else if args.cmd_list {
-		let result = store.accounts().into_iter()
-			.map(|a| format!("{}", a))
-			.collect::<Vec<String>>()
-			.join("\n");
-		Ok(result)
+		let accounts = store.accounts();
+		Ok(format_accounts(&accounts))
 	} else if args.cmd_import {
-		unimplemented!();
+		let src = key_dir(&args.flag_src).unwrap();
+		let dst = key_dir(&args.flag_dir).unwrap();
+		let accounts = import_accounts(src.deref(), dst.deref()).unwrap();
+		Ok(format_accounts(&accounts))
 	} else if args.cmd_remove {
 		let address = Address::from_str(&args.arg_address).unwrap();
 		let ok = store.remove_account(&address, &args.arg_password).is_ok();
