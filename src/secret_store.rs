@@ -1,5 +1,5 @@
-use ethkey::{Generator, Address};
-use {Error, Signature};
+use ethkey::{Generator};
+use {Error, Signature, Address, Message};
 
 pub trait SecretStore {
 	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator;
@@ -10,6 +10,6 @@ pub trait SecretStore {
 
 	fn remove_account(&self, account: &Address, password: &str) -> Result<(), Error>;
 
-	fn sign(&self, account: &Address, password: &str, message: &[u8; 32]) -> Result<Signature, Error>;
+	fn sign(&self, account: &Address, password: &str, message: &Message) -> Result<Signature, Error>;
 }
 

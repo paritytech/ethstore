@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 use std::sync::RwLock;
-use ethkey::{Generator, Address};
+use ethkey::Generator;
 use crypto::KEY_ITERATIONS;
-use {Error, Signature, SecretStore, KeyDirectory, SafeAccount};
+use {Error, Signature, SecretStore, KeyDirectory, SafeAccount, Address, Message};
 
 pub struct EthStore {
 	dir: Box<KeyDirectory>,
@@ -56,7 +56,7 @@ impl SecretStore for EthStore {
 		unimplemented!();
 	}
 
-	fn sign(&self, account: &Address, password: &str, message: &[u8; 32]) -> Result<Signature, Error> {
+	fn sign(&self, account: &Address, password: &str, message: &Message) -> Result<Signature, Error> {
 		let cache = self.cache.read().unwrap();
 		let account = try!(cache.get(account).ok_or(Error::InvalidAccount));
 		account.sign(password, message)

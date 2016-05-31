@@ -10,7 +10,7 @@ macro_rules! impl_hash {
 		pub struct $name([u8; $size]);
 
 		impl Serialize for $name {
-			fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
+			fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error>
 			where S: Serializer {
 				serializer.serialize_str(&self.0.to_hex())
 			}

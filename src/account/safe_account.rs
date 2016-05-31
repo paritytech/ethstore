@@ -1,5 +1,6 @@
+use std::ops::{Deref, DerefMut};
 use ethkey::{KeyPair, sign};
-use {json, Address, Secret, Error, crypto, Signature};
+use {json, Address, Secret, Error, crypto, Signature, Message};
 use crypto::Keccak256;
 use random::Random;
 use account::{Version, Cipher, Kdf, Aes128Ctr, Pbkdf2, Prf};
@@ -47,7 +48,7 @@ impl From<json::KeyFile> for SafeAccount {
 		SafeAccount {
 			id: json.id.into(),
 			version: From::from(json.version),
-			address: json.address.into(),
+			address: From::from(json.address), //json.address.into(),
 			crypto: From::from(json.crypto),
 		}
 	}
@@ -58,7 +59,7 @@ impl Into<json::KeyFile> for SafeAccount {
 		json::KeyFile {
 			id: From::from(self.id),
 			version: self.version.into(),
-			address: From::from(self.address),
+			address: self.address.into(), //From::from(self.address),
 			crypto: self.crypto.into(),
 		}
 	}
@@ -76,7 +77,7 @@ impl Crypto {
 		let mut ciphertext = [0u8; 32];
 
 		// aes-128-ctr with initial vector of iv
-		crypto::aes::encrypt(&derived_left_bits, &iv, secret, &mut ciphertext);
+		crypto::aes::encrypt(&derived_left_bits, &iv, secret.deref(), &mut ciphertext);
 
 		// KECCAK(DK[16..31] ++ <ciphertext>), where DK[16..31] - derived_right_bits
 		let mac = crypto::derive_mac(&derived_right_bits, &ciphertext).keccak256();
@@ -108,11 +109,11 @@ impl Crypto {
 			return Err(Error::InvalidPassword);
 		}
 
-		let mut secret = [0u8; 32];
+		let mut secret = Secret::default();
 
 		match self.cipher {
 			Cipher::Aes128Ctr(ref params) => {
-				crypto::aes::decrypt(&derived_left_bits, &params.iv, &self.ciphertext, &mut secret)
+				crypto::aes::decrypt(&derived_left_bits, &params.iv, &self.ciphertext, secret.deref_mut())
 			},
 		}
 
@@ -130,7 +131,7 @@ impl SafeAccount {
 		}
 	}
 
-	pub fn sign(&self, password: &str, message: &[u8; 32]) -> Result<Signature, Error> {
+	pub fn sign(&self, password: &str, message: &Message) -> Result<Signature, Error> {
 		let secret = try!(self.crypto.secret(password));
 		sign(&secret, message).map_err(From::from)
 	}
@@ -138,6 +139,7 @@ impl SafeAccount {
 
 #[cfg(test)]
 mod tests {
+	use Message;
 	use ethkey::{Generator, Random, verify};
 	use super::{Crypto, SafeAccount};
 
@@ -161,7 +163,7 @@ mod tests {
 	fn sign_and_verify() {
 		let keypair = Random.generate().unwrap();
 		let password = "hello world";
-		let message = [0x11u8; 32];
+		let message = Message::default();
 		let account = SafeAccount::create(&keypair, [0u8; 16], password, 10240);
 		let signature = account.sign(password, &message).unwrap();
 		assert!(verify(keypair.public(), &signature, &message).unwrap());

@@ -3,7 +3,7 @@ name = "ethstore"
 version = "0.1.0"
 dependencies = [
  "docopt 0.6.80 (registry+https://github.com/rust-lang/crates.io-index)",
- "ethkey 0.1.0 (git+https://github.com/ethcore/ethkey)",
+ "ethkey 0.2.0 (git+https://github.com/ethcore/ethkey)",
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust-crypto 0.2.36 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -69,8 +69,8 @@ dependencies = [
 
 [[package]]
 name = "ethkey"
-version = "0.1.0"
-source = "git+https://github.com/ethcore/ethkey#25d19716a26d6efd0e9ca8f2db7c86001aae4d74"
+version = "0.2.0"
+source = "git+https://github.com/ethcore/ethkey#c03fe813ab546af1604f78f01588713a905b1d14"
 dependencies = [
  "docopt 0.6.80 (registry+https://github.com/rust-lang/crates.io-index)",
  "eth-secp256k1 0.5.4 (git+https://github.com/ethcore/rust-secp256k1)",
