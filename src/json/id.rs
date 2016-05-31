@@ -1,5 +1,6 @@
 //! Universaly unique identifier.
 use std::str::FromStr;
+use std::fmt;
 use rustc_serialize::hex::{ToHex, FromHex};
 use serde::{Deserialize, Serialize, Deserializer, Serializer, Error as SerdeError};
 use serde::de::Visitor;
@@ -35,6 +36,13 @@ impl Into<String> for UUID {
 impl Into<[u8; 16]> for UUID {
 	fn into(self) -> [u8; 16] {
 		self.0
+	}
+}
+
+impl fmt::Display for UUID {
+	fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+		let s: String = (self as &UUID).into();
+		write!(f, "{}", s)
 	}
 }
 

@@ -62,12 +62,12 @@ impl KeyDirectory for DiskDirectory {
 	}
 
 	fn insert(&self, account: SafeAccount) -> Result<(), Error> {
-		let id = "id";
 		// transform account into key file
 		let keyfile: json::KeyFile = account.into();
-		// open the keystore directory
+
+		// build file path
 		let mut keyfile_path = self.path.clone();
-		keyfile_path.push(id);
+		keyfile_path.push(format!("{}", keyfile.id));
 
 		// save the file
 		let mut file = try!(fs::File::create(&keyfile_path));
