@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
 use std::sync::RwLock;
-use ethkey::Generator;
+use ethkey::{Generator, KeyPair};
 use crypto::KEY_ITERATIONS;
 use random::Random;
-use {Error, Signature, SecretStore, KeyDirectory, SafeAccount, Address, Message};
+use {Error, Signature, SecretStore, KeyDirectory, SafeAccount, Address, Message, Secret};
 
 pub struct EthStore {
 	dir: Box<KeyDirectory>,
@@ -26,23 +26,34 @@ impl EthStore {
 		};
 		Ok(store)
 	}
-}
 
-impl SecretStore for EthStore {
-	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator {
-		let keypair = try!(generator.generate().map_err(|_| Error::CreationFailed));
-
-		let id: [u8; 16] = Random::random();
-		let account = SafeAccount::create(&keypair, id, password, self.iterations);
-		let address = keypair.address();
-
+	fn save(&self, account: SafeAccount) -> Result<(), Error> {
 		// save to file
 		try!(self.dir.insert(account.clone()));
 
 		// update cache
 		let mut cache = self.cache.write().unwrap();
-		cache.insert(address.clone(), account);
+		cache.insert(account.address.clone(), account);
+		Ok(())
+	}
+}
 
+impl SecretStore for EthStore {
+	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator {
+		let keypair = try!(generator.generate().map_err(|_| Error::CreationFailed));
+		let id: [u8; 16] = Random::random();
+		let account = SafeAccount::create(&keypair, id, password, self.iterations);
+		let address = account.address.clone();
+		try!(self.save(account));
+		Ok(address)
+	}
+
+	fn insert_account(&self, secret: Secret, password: &str) -> Result<Address, Error> {
+		let keypair = try!(KeyPair::from_secret(secret).map_err(|_| Error::CreationFailed));
+		let id: [u8; 16] = Random::random();
+		let account = SafeAccount::create(&keypair, id, password, self.iterations);
+		let address = account.address.clone();
+		try!(self.save(account));
 		Ok(address)
 	}
 
@@ -58,14 +69,8 @@ impl SecretStore for EthStore {
 			try!(account.change_password(old_password, new_password, self.iterations))
 		};
 
-		// TODO: save to file
-		try!(self.dir.insert(account.clone()));
-
-		// update cache
-		let mut cache = self.cache.write().unwrap();
-		cache.insert(address.clone(), account);
-
-		Ok(())
+		// save to file
+		self.save(account)
 	}
 
 	fn remove_account(&self, address: &Address, password: &str) -> Result<(), Error> {

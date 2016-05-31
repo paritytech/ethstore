@@ -1,8 +1,10 @@
 use ethkey::{Generator};
-use {Error, Signature, Address, Message};
+use {Error, Signature, Address, Message, Secret};
 
 pub trait SecretStore {
 	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator;
+
+	fn insert_account(&self, secret: Secret, password: &str) -> Result<Address, Error>;
 
 	fn accounts(&self) -> Vec<Address>;
 
