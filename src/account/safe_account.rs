@@ -171,7 +171,7 @@ mod tests {
 	fn crypto_invalid_password() {
 		let keypair = Random.generate().unwrap();
 		let crypto = Crypto::create(keypair.secret(), "this is sparta", 10240);
-		let secret = crypto.secret("this is sparta!").unwrap();
+		let _ = crypto.secret("this is sparta!").unwrap();
 	}
 
 	#[test]

@@ -9,6 +9,7 @@ pub enum Error {
 	InvalidAccount,
 	CreationFailed,
 	EthKey(EthKeyError),
+	Custom(String),
 }
 
 impl From<IoError> for Error {

@@ -76,10 +76,10 @@ impl KeyDirectory for DiskDirectory {
 
 		// save the file
 		let mut file = try!(fs::File::create(&keyfile_path));
-		keyfile.write(&mut file);
+		try!(keyfile.write(&mut file).map_err(|e| Error::Custom(format!("{:?}", e))));
 
 		if let Err(_) = restrict_permissions_to_owner(&keyfile_path) {
-			fs::remove_file(&keyfile_path);
+			fs::remove_file(&keyfile_path).expect("Expected to remove recently created file");
 			return Err(Error::Io(io::Error::last_os_error()));
 		}
 

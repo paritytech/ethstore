@@ -69,10 +69,17 @@ impl SecretStore for EthStore {
 	}
 
 	fn remove_account(&self, address: &Address, password: &str) -> Result<(), Error> {
-		let mut cache = self.cache.read().unwrap();
-		let account = try!(cache.get(address).ok_or(Error::InvalidAccount));
-		if account.check_password(password) {
-			self.dir.remove(address)
+		let can_remove = {
+			let cache = self.cache.read().unwrap();
+			let account = try!(cache.get(address).ok_or(Error::InvalidAccount));
+			account.check_password(password)
+		};
+
+		if can_remove {
+			try!(self.dir.remove(address));
+			let mut cache = self.cache.write().unwrap();
+			cache.remove(address);
+			Ok(())
 		} else {
 			Err(Error::InvalidPassword)
 		}
