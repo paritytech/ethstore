@@ -6,7 +6,7 @@ pub trait SecretStore {
 
 	fn accounts(&self) -> Vec<Address>;
 
-	fn change_password(&self, old_password: &str, new_password: &str) -> Result<(), Error>;
+	fn change_password(&self, account: &Address, old_password: &str, new_password: &str) -> Result<(), Error>;
 
 	fn remove_account(&self, account: &Address, password: &str) -> Result<(), Error>;
 

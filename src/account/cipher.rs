@@ -1,11 +1,11 @@
 use json;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Aes128Ctr {
 	pub iv: [u8; 16],
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Cipher {
 	Aes128Ctr(Aes128Ctr),
 }

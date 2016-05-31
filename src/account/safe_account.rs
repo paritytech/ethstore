@@ -5,7 +5,7 @@ use crypto::Keccak256;
 use random::Random;
 use account::{Version, Cipher, Kdf, Aes128Ctr, Pbkdf2, Prf};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Crypto {
 	pub cipher: Cipher,
 	pub ciphertext: [u8; 32],
@@ -13,7 +13,7 @@ pub struct Crypto {
 	pub mac: [u8; 32],
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SafeAccount {
 	pub id: [u8; 16],
 	pub version: Version,
@@ -135,6 +135,21 @@ impl SafeAccount {
 		let secret = try!(self.crypto.secret(password));
 		sign(&secret, message).map_err(From::from)
 	}
+
+	pub fn change_password(&self, old_password: &str, new_password: &str, iterations: u32) -> Result<Self, Error> {
+		let secret = try!(self.crypto.secret(old_password));
+		let result = SafeAccount {
+			id: self.id.clone(),
+			version: self.version.clone(),
+			crypto: Crypto::create(&secret, new_password, iterations),
+			address: self.address.clone(),
+		};
+		Ok(result)
+	}
+
+	pub fn check_password(&self, password: &str) -> bool {
+		self.crypto.secret(password).is_ok()
+	}
 }
 
 #[cfg(test)]
@@ -167,5 +182,20 @@ mod tests {
 		let account = SafeAccount::create(&keypair, [0u8; 16], password, 10240);
 		let signature = account.sign(password, &message).unwrap();
 		assert!(verify(keypair.public(), &signature, &message).unwrap());
+	}
+
+	#[test]
+	fn change_password() {
+		let keypair = Random.generate().unwrap();
+		let first_password = "hello world";
+		let sec_password = "this is sparta";
+		let i = 10240;
+		let message = Message::default();
+		let account = SafeAccount::create(&keypair, [0u8; 16], first_password, i);
+		let new_account = account.change_password(first_password, sec_password, i).unwrap();
+		assert!(account.sign(first_password, &message).is_ok());
+		assert!(account.sign(sec_password, &message).is_err());
+		assert!(new_account.sign(first_password, &message).is_err());
+		assert!(new_account.sign(sec_password, &message).is_ok());
 	}
 }

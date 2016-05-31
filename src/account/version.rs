@@ -1,6 +1,6 @@
 use json;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Version {
 	V3,
 }

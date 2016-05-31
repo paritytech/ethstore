@@ -35,12 +35,15 @@ impl SecretStore for EthStore {
 		let id = [0u8; 16];
 		let account = SafeAccount::create(&keypair, id, password, self.iterations);
 		let address = keypair.address();
+
+		// TODO: save to file
+
+		// update cache
 		{
 			let mut cache = self.cache.write().unwrap();
 			cache.insert(address.clone(), account);
 		}
 
-		// TODO: save to file
 		Ok(address)
 	}
 
@@ -48,12 +51,33 @@ impl SecretStore for EthStore {
 		self.cache.read().unwrap().keys().cloned().collect()
 	}
 
-	fn change_password(&self, old_password: &str, new_password: &str) -> Result<(), Error> {
-		unimplemented!();
+	fn change_password(&self, address: &Address, old_password: &str, new_password: &str) -> Result<(), Error> {
+		// change password
+		let account = {
+			let cache = self.cache.read().unwrap();
+			let account = try!(cache.get(address).ok_or(Error::InvalidAccount));
+			try!(account.change_password(old_password, new_password, self.iterations))
+		};
+
+		// TODO: save to file
+
+		// update cache
+		{
+			let mut cache = self.cache.write().unwrap();
+			cache.insert(address.clone(), account);
+		}
+
+		Ok(())
 	}
 
 	fn remove_account(&self, account: &Address, password: &str) -> Result<(), Error> {
-		unimplemented!();
+		let mut cache = self.cache.read().unwrap();
+		let account = try!(cache.get(account).ok_or(Error::InvalidAccount));
+		if account.check_password(password) {
+			unimplemented!();
+		} else {
+			Err(Error::InvalidPassword)
+		}
 	}
 
 	fn sign(&self, account: &Address, password: &str, message: &Message) -> Result<Signature, Error> {

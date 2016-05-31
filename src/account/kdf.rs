@@ -1,11 +1,11 @@
 use json;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Prf {
 	HmacSha256,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Pbkdf2 {
 	pub c: u32,
 	pub dklen: u32,
@@ -13,7 +13,7 @@ pub struct Pbkdf2 {
 	pub salt: [u8; 32],
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Scrypt {
 	pub dklen: u32,
 	pub p: u32,
@@ -22,7 +22,7 @@ pub struct Scrypt {
 	pub salt: [u8; 32],
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Kdf {
 	Pbkdf2(Pbkdf2),
 	Scrypt(Scrypt),

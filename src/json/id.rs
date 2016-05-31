@@ -38,14 +38,14 @@ impl Into<[u8; 16]> for UUID {
 	}
 }
 
-fn clone_into(from: &str, into: &mut [u8]) -> Result<(), Error> {
+fn copy_into(from: &str, into: &mut [u8]) -> Result<(), Error> {
 	let from = try!(from.from_hex().map_err(|_| Error::InvalidUUID));
 
 	if from.len() != into.len() {
 		return Err(Error::InvalidUUID);
 	}
 
-	into.clone_from_slice(&from);
+	into.copy_from_slice(&from);
 	Ok(())
 }
 
@@ -55,24 +55,24 @@ impl FromStr for UUID {
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let parts: Vec<&str> = s.split("-").collect();
 
-		if parts.len() != 5 { 
-			return Err(Error::InvalidUUID); 
+		if parts.len() != 5 {
+			return Err(Error::InvalidUUID);
 		}
 
 		let mut uuid = [0u8; 16];
 
-		try!(clone_into(parts[0], &mut uuid[0..4]));
-		try!(clone_into(parts[1], &mut uuid[4..6]));
-		try!(clone_into(parts[2], &mut uuid[6..8]));
-		try!(clone_into(parts[3], &mut uuid[8..10]));
-		try!(clone_into(parts[4], &mut uuid[10..16]));
+		try!(copy_into(parts[0], &mut uuid[0..4]));
+		try!(copy_into(parts[1], &mut uuid[4..6]));
+		try!(copy_into(parts[2], &mut uuid[6..8]));
+		try!(copy_into(parts[3], &mut uuid[8..10]));
+		try!(copy_into(parts[4], &mut uuid[10..16]));
 
 		Ok(UUID(uuid))
 	}
 }
 
 impl Serialize for UUID {
-	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error> 
+	fn serialize<S>(&self, serializer: &mut S) -> Result<(), S::Error>
 	where S: Serializer {
 		let s: String = self.into();
 		serializer.serialize_str(&s)
