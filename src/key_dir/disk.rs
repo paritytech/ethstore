@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::{PathBuf, Path};
+use std::collections::HashMap;
 use {json, SafeAccount, Error, Address};
 use super::KeyDirectory;
 
@@ -13,36 +14,42 @@ impl DiskDirectory {
 			path: path.as_ref().to_path_buf(),
 		}
 	}
-}
 
-impl KeyDirectory for DiskDirectory {
-	fn load(&self) -> Result<Vec<SafeAccount>, Error> {
+	/// all accounts found in keys directory
+	fn files(&self) -> Result<HashMap<PathBuf, SafeAccount>, Error> {
 		// it's not done using one iterator cause
 		// there is an issue with rustc and it takes tooo much time to compile
-
-		// enumerate all entries in keystore
-		let paths: Vec<_> = try!(fs::read_dir(&self.path))
+		let paths = try!(fs::read_dir(&self.path))
 			.flat_map(Result::ok)
 			.filter(|entry| {
 				let metadata = entry.metadata();
 				metadata.is_ok() && !metadata.unwrap().is_dir()
 			})
 			.map(|entry| entry.path())
-			.collect();
+			.collect::<Vec<PathBuf>>();
 
-		// load them
-		let files: Vec<_> = paths.into_iter()
+		let files: Result<Vec<_>, _> = paths.iter()
 			.map(fs::File::open)
-			.filter_map(Result::ok)
 			.collect();
 
-		//transform them into safe account
+		let files = try!(files);
+
 		let accounts = files.into_iter()
 			.map(json::KeyFile::load)
-			.filter_map(Result::ok)
-			.map(SafeAccount::from)
+			.zip(paths.into_iter())
+			.filter_map(|(file, path)| file.ok().map(|file| (path, SafeAccount::from(file))))
 			.collect();
 
+		Ok(accounts)
+	}
+}
+
+impl KeyDirectory for DiskDirectory {
+	fn load(&self) -> Result<Vec<SafeAccount>, Error> {
+		let accounts = try!(self.files())
+			.into_iter()
+			.map(|(_, account)| account)
+			.collect();
 		Ok(accounts)
 	}
 
@@ -63,8 +70,15 @@ impl KeyDirectory for DiskDirectory {
 
 	fn remove(&self, address: &Address) -> Result<(), Error> {
 		// enumerate all entries in keystore
-		// find entry with given address
+		// and find entry with given address
+		let to_remove = try!(self.files())
+			.into_iter()
+			.find(|&(_, ref account)| &account.address == address);
+
 		// remove it
-		unimplemented!();
+		match to_remove {
+			None => Err(Error::InvalidAccount),
+			Some((path, _)) => fs::remove_file(path).map_err(From::from)
+		}
 	}
 }

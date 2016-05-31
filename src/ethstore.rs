@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::sync::RwLock;
 use ethkey::Generator;
 use crypto::KEY_ITERATIONS;
+use random::Random;
 use {Error, Signature, SecretStore, KeyDirectory, SafeAccount, Address, Message};
 
 pub struct EthStore {
@@ -31,18 +32,16 @@ impl SecretStore for EthStore {
 	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator {
 		let keypair = try!(generator.generate().map_err(|_| Error::CreationFailed));
 
-		// TODO: id?
-		let id = [0u8; 16];
+		let id: [u8; 16] = Random::random();
 		let account = SafeAccount::create(&keypair, id, password, self.iterations);
 		let address = keypair.address();
 
-		// TODO: save to file
+		// save to file
+		try!(self.dir.insert(account.clone()));
 
 		// update cache
-		{
-			let mut cache = self.cache.write().unwrap();
-			cache.insert(address.clone(), account);
-		}
+		let mut cache = self.cache.write().unwrap();
+		cache.insert(address.clone(), account);
 
 		Ok(address)
 	}
@@ -60,21 +59,20 @@ impl SecretStore for EthStore {
 		};
 
 		// TODO: save to file
+		try!(self.dir.insert(account.clone()));
 
 		// update cache
-		{
-			let mut cache = self.cache.write().unwrap();
-			cache.insert(address.clone(), account);
-		}
+		let mut cache = self.cache.write().unwrap();
+		cache.insert(address.clone(), account);
 
 		Ok(())
 	}
 
-	fn remove_account(&self, account: &Address, password: &str) -> Result<(), Error> {
+	fn remove_account(&self, address: &Address, password: &str) -> Result<(), Error> {
 		let mut cache = self.cache.read().unwrap();
-		let account = try!(cache.get(account).ok_or(Error::InvalidAccount));
+		let account = try!(cache.get(address).ok_or(Error::InvalidAccount));
 		if account.check_password(password) {
-			unimplemented!();
+			self.dir.remove(address)
 		} else {
 			Err(Error::InvalidPassword)
 		}
