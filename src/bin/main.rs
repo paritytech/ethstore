@@ -3,7 +3,7 @@ extern crate docopt;
 extern crate ethkey;
 extern crate ethstore;
 
-use std::env;
+use std::{env, process};
 use std::ops::Deref;
 use std::str::FromStr;
 use docopt::Docopt;
@@ -59,17 +59,22 @@ struct Args {
 }
 
 fn main() {
-	let result = execute(env::args()).unwrap();
-	println!("{}", result);
+	match execute(env::args()) {
+		Ok(result) => println!("{}", result),
+		Err(err) => {
+			println!("{}", err);
+			process::exit(1);
+		}
+	}
 }
 
 fn key_dir(location: &str) -> Result<Box<KeyDirectory>, Error> {
 	let dir: Box<KeyDirectory> = match location {
-		"parity" => Box::new(ParityDirectory::create(DirectoryType::Main).unwrap()),
-		"parity-test" => Box::new(ParityDirectory::create(DirectoryType::Testnet).unwrap()),
-		"geth" => Box::new(GethDirectory::create(DirectoryType::Main).unwrap()),
-		"geth-test" => Box::new(GethDirectory::create(DirectoryType::Testnet).unwrap()),
-		path => Box::new(DiskDirectory::create(path).unwrap()),
+		"parity" => Box::new(try!(ParityDirectory::create(DirectoryType::Main))),
+		"parity-test" => Box::new(try!(ParityDirectory::create(DirectoryType::Testnet))),
+		"geth" => Box::new(try!(GethDirectory::create(DirectoryType::Main))),
+		"geth-test" => Box::new(try!(GethDirectory::create(DirectoryType::Testnet))),
+		path => Box::new(try!(DiskDirectory::create(path))),
 	};
 
 	Ok(dir)
@@ -83,37 +88,37 @@ fn format_accounts(accounts: &[Address]) -> String {
 		.join("\n")
 }
 
-fn execute<S, I>(command: I) -> Result<String, ()> where I: IntoIterator<Item=S>, S: AsRef<str> {
+fn execute<S, I>(command: I) -> Result<String, Error> where I: IntoIterator<Item=S>, S: AsRef<str> {
 	let args: Args = Docopt::new(USAGE)
 		.and_then(|d| d.argv(command).decode())
 		.unwrap_or_else(|e| e.exit());
 
-	let store = EthStore::open(key_dir(&args.flag_dir).unwrap()).unwrap();
+	let store = try!(EthStore::open(try!(key_dir(&args.flag_dir))));
 
 	return if args.cmd_insert {
-		let secret = Secret::from_str(&args.arg_secret).unwrap();
-		let address = store.insert_account(secret, &args.arg_password).unwrap();
+		let secret = try!(Secret::from_str(&args.arg_secret));
+		let address = try!(store.insert_account(secret, &args.arg_password));
 		Ok(format!("{}", address))
 	} else if args.cmd_change_pwd {
-		let address = Address::from_str(&args.arg_address).unwrap();
+		let address = try!(Address::from_str(&args.arg_address));
 		let ok = store.change_password(&address, &args.arg_old_pwd, &args.arg_new_pwd).is_ok();
 		Ok(format!("{}", ok))
 	} else if args.cmd_list {
 		let accounts = store.accounts();
 		Ok(format_accounts(&accounts))
 	} else if args.cmd_import {
-		let src = key_dir(&args.flag_src).unwrap();
-		let dst = key_dir(&args.flag_dir).unwrap();
-		let accounts = import_accounts(src.deref(), dst.deref()).unwrap();
+		let src = try!(key_dir(&args.flag_src));
+		let dst = try!(key_dir(&args.flag_dir));
+		let accounts = try!(import_accounts(src.deref(), dst.deref()));
 		Ok(format_accounts(&accounts))
 	} else if args.cmd_remove {
-		let address = Address::from_str(&args.arg_address).unwrap();
+		let address = try!(Address::from_str(&args.arg_address));
 		let ok = store.remove_account(&address, &args.arg_password).is_ok();
 		Ok(format!("{}", ok))
 	} else if args.cmd_sign {
-		let address = Address::from_str(&args.arg_address).unwrap();
-		let message = Message::from_str(&args.arg_message).unwrap();
-		let signature = store.sign(&address, &args.arg_password, &message).unwrap();
+		let address = try!(Address::from_str(&args.arg_address));
+		let message = try!(Message::from_str(&args.arg_message));
+		let signature = try!(store.sign(&address, &args.arg_password, &message));
 		Ok(format!("{}", signature))
 	} else {
 		unreachable!();
