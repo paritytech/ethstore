@@ -8,10 +8,10 @@ dependencies = [
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust-crypto 0.2.36 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_codegen 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_codegen 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_macros 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_macros 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "syntex 0.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tiny-keccak 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -59,7 +59,7 @@ dependencies = [
 [[package]]
 name = "eth-secp256k1"
 version = "0.5.4"
-source = "git+https://github.com/ethcore/rust-secp256k1#771271d29bc1eafbbeb0525321229a4f73694d16"
+source = "git+https://github.com/ethcore/rust-secp256k1#ae7ee3a1200a87b84379388e59d19ce10d4a0cf9"
 dependencies = [
  "arrayvec 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "gcc 0.3.28 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -71,7 +71,7 @@ dependencies = [
 [[package]]
 name = "ethkey"
 version = "0.2.0"
-source = "git+https://github.com/ethcore/ethkey#c03fe813ab546af1604f78f01588713a905b1d14"
+source = "git+https://github.com/ethcore/ethkey#a976cd764357b355d1df206c0b383a42cdadad33"
 dependencies = [
  "docopt 0.6.80 (registry+https://github.com/rust-lang/crates.io-index)",
  "eth-secp256k1 0.5.4 (git+https://github.com/ethcore/rust-secp256k1)",
@@ -206,12 +206,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serde"
-version = "0.7.6"
+version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serde_codegen"
-version = "0.7.6"
+version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "aster 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -228,15 +228,15 @@ version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num-traits 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "serde_macros"
-version = "0.7.5"
+version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "serde_codegen 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_codegen 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
