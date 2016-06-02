@@ -1,7 +1,7 @@
 use ethkey::{Generator, Address, Message, Signature, Secret};
 use Error;
 
-pub trait SecretStore {
+pub trait SecretStore: Send + Sync {
 	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator;
 
 	fn insert_account(&self, secret: Secret, password: &str) -> Result<Address, Error>;
