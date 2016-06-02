@@ -1,4 +1,6 @@
-use {KeyDirectory, Address, Error};
+use ethkey::Address;
+use dir::KeyDirectory;
+use Error;
 
 pub fn import_accounts(src: &KeyDirectory, dst: &KeyDirectory) -> Result<Vec<Address>, Error> {
 	let accounts = try!(src.load());

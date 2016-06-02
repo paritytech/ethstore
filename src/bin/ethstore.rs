@@ -1,13 +1,14 @@
 extern crate rustc_serialize;
 extern crate docopt;
-extern crate ethkey;
 extern crate ethstore;
 
 use std::{env, process};
 use std::ops::Deref;
 use std::str::FromStr;
 use docopt::Docopt;
-use ethstore::{EthStore, SecretStore, ParityDirectory, DiskDirectory, GethDirectory, KeyDirectory, DirectoryType, Secret, Address, Message, import_accounts, Error};
+use ethstore::ethkey::{Secret, Address, Message};
+use ethstore::dir::{KeyDirectory, ParityDirectory, DiskDirectory, GethDirectory, DirectoryType};
+use ethstore::{EthStore, SecretStore, import_accounts, Error};
 
 pub const USAGE: &'static str = r#"
 Ethereum key management.

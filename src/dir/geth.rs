@@ -1,6 +1,7 @@
 use std::env;
 use std::path::PathBuf;
-use {Address, SafeAccount, Error};
+use ethkey::Address;
+use {SafeAccount, Error};
 use super::{KeyDirectory, DiskDirectory, DirectoryType};
 
 #[cfg(target_os = "macos")]

@@ -1,11 +1,10 @@
 extern crate rand;
 extern crate ethstore;
-extern crate ethkey;
 
 mod util;
 
 use ethstore::{SecretStore, EthStore};
-use ethkey::Random;
+use ethstore::ethkey::Random;
 use util::TransientDir;
 
 #[test]

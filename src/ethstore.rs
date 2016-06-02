@@ -3,7 +3,10 @@ use std::sync::RwLock;
 use ethkey::{Generator, KeyPair};
 use crypto::KEY_ITERATIONS;
 use random::Random;
-use {Error, Signature, SecretStore, KeyDirectory, SafeAccount, Address, Message, Secret};
+use ethkey::{Signature, Address, Message, Secret};
+use dir::KeyDirectory;
+use account::SafeAccount;
+use {Error, SecretStore};
 
 pub struct EthStore {
 	dir: Box<KeyDirectory>,

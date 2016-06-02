@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
-use ethkey::{KeyPair, sign};
-use {json, Address, Secret, Error, crypto, Signature, Message};
+use ethkey::{KeyPair, sign, Address, Secret, Signature, Message};
+use {json, Error, crypto};
 use crypto::Keccak256;
 use random::Random;
 use account::{Version, Cipher, Kdf, Aes128Ctr, Pbkdf2, Prf};
@@ -154,8 +154,7 @@ impl SafeAccount {
 
 #[cfg(test)]
 mod tests {
-	use Message;
-	use ethkey::{Generator, Random, verify};
+	use ethkey::{Generator, Random, verify, Message};
 	use super::{Crypto, SafeAccount};
 
 	#[test]

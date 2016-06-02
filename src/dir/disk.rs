@@ -1,7 +1,8 @@
 use std::{fs, ffi, io};
 use std::path::{PathBuf, Path};
 use std::collections::HashMap;
-use {libc, json, SafeAccount, Error, Address};
+use ethkey::Address;
+use {libc, json, SafeAccount, Error};
 use super::KeyDirectory;
 
 fn restrict_permissions_to_owner(file_path: &Path) -> Result<(), i32>  {
