@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 use std::sync::RwLock;
-use ethkey::{Generator, KeyPair};
+use ethkey::KeyPair;
 use crypto::KEY_ITERATIONS;
 use random::Random;
 use ethkey::{Signature, Address, Message, Secret};
@@ -42,15 +42,6 @@ impl EthStore {
 }
 
 impl SecretStore for EthStore {
-	fn create_account<T>(&self, generator: T, password: &str) -> Result<Address, Error> where T: Generator {
-		let keypair = try!(generator.generate().map_err(|_| Error::CreationFailed));
-		let id: [u8; 16] = Random::random();
-		let account = SafeAccount::create(&keypair, id, password, self.iterations);
-		let address = account.address.clone();
-		try!(self.save(account));
-		Ok(address)
-	}
-
 	fn insert_account(&self, secret: Secret, password: &str) -> Result<Address, Error> {
 		let keypair = try!(KeyPair::from_secret(secret).map_err(|_| Error::CreationFailed));
 		let id: [u8; 16] = Random::random();
