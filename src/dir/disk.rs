@@ -5,12 +5,18 @@ use ethkey::Address;
 use {libc, json, SafeAccount, Error};
 use super::KeyDirectory;
 
+#[cfg(not(windows))]
 fn restrict_permissions_to_owner(file_path: &Path) -> Result<(), i32>  {
 	let cstr = ffi::CString::new(file_path.to_str().unwrap()).unwrap();
 	match unsafe { libc::chmod(cstr.as_ptr(), libc::S_IWUSR | libc::S_IRUSR) } {
 		0 => Ok(()),
 		x => Err(x),
 	}
+}
+
+#[cfg(windows)]
+fn restrict_permissions_to_owner(file_path: &Path) -> Result<(), i32> {
+	Ok(())
 }
 
 pub struct DiskDirectory {
