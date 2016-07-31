@@ -9,6 +9,13 @@ Ethereum key management.
 
 [Documentation](http://ethcore.github.io/ethstore/ethstore/index.html)
 
+### Build
+In the root of the parity repo
+```
+cargo build --release -p ethstore --features='ethcore/ethstore/cli'
+./target/release/deps/ethstore --help
+```
+
 ### Usage
 
 ```
