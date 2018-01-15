@@ -1,3 +1,3 @@
 # ethstore
 
-This repo is `deprecated`. It has been moved here [ethcore/parity/ethstore](https://github.com/ethcore/parity/tree/master/ethstore)
+This repo is `deprecated`. It has been moved here [paritytech/parity/ethstore](https://github.com/paritytech/parity/tree/master/ethstore)
